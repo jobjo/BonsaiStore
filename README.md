@@ -5,13 +5,12 @@ Bonsai Store - F# based reporting
 ## Build ##
 
 Unix:
-```bash
+```
 $ sh build.sh All
 ```
-
 Windows:
-```bash
-$ build.cmd
+```
+$ build.cmd All
 ```
 
 ## Rationale  ##
