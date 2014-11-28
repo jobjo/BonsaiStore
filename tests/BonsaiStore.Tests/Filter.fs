@@ -28,36 +28,36 @@ module Filters =
         else
             true
 
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Normalize twice doesn't change`` (f: F.Filter<DateProperty, int>) =
-//        let f1 = F.normalize f
-//        f1 = F.normalize f1
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Normalize filter preserves semantics`` (f: F.Filter<DateProperty, int>) =
-//        let s1 = filterByPredicateSet f dateTree
-//        let s2 = filterByPredicateSet (F.normalize f) dateTree
-//        compareSets f s1 s2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Filter by predicate same as filter`` (f: F.Filter<DateProperty, int>) =
-//        let s1 = filterByPredicateSet f dateTree
-//        let s2 = findSet f dateTree
-//        compareSets f s1 s2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Intersection of filter same as composing with and`` (f1: F.Filter<DateProperty, int>) (f2: F.Filter<DateProperty, int>) =
-//        let f1, f2 = F.normalize f1, F.normalize f2
-//        let f = f1 <&> f2
-//        let s1 = Set.intersect (filterByPredicateSet f1 dateTree) (filterByPredicateSet f2 dateTree)
-//        let s2 = findSet f dateTree
-//        compareSets  f s1 s2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Union of filter same as composing with or`` (f1: F.Filter<DateProperty, int>) (f2: F.Filter<DateProperty, int>) =
-//        let f1, f2 = F.normalize f1, F.normalize f2
-//        let s1 = Set.union (findSet f1 dateTree) (findSet f2 dateTree)
-//        let s2 = findSet (F.Or(f1,f2)) dateTree
-//        s1 = s2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Normalize twice doesn't change`` (f: F.Filter<DateProperty, int>) =
+        let f1 = F.normalize f
+        f1 = F.normalize f1
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Normalize filter preserves semantics`` (f: F.Filter<DateProperty, int>) =
+        let s1 = filterByPredicateSet f dateTree
+        let s2 = filterByPredicateSet (F.normalize f) dateTree
+        compareSets f s1 s2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Filter by predicate same as filter`` (f: F.Filter<DateProperty, int>) =
+        let s1 = filterByPredicateSet f dateTree
+        let s2 = findSet f dateTree
+        compareSets f s1 s2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Intersection of filter same as composing with and`` (f1: F.Filter<DateProperty, int>) (f2: F.Filter<DateProperty, int>) =
+        let f1, f2 = F.normalize f1, F.normalize f2
+        let f = f1 <&> f2
+        let s1 = Set.intersect (filterByPredicateSet f1 dateTree) (filterByPredicateSet f2 dateTree)
+        let s2 = findSet f dateTree
+        compareSets  f s1 s2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Union of filter same as composing with or`` (f1: F.Filter<DateProperty, int>) (f2: F.Filter<DateProperty, int>) =
+        let f1, f2 = F.normalize f1, F.normalize f2
+        let s1 = Set.union (findSet f1 dateTree) (findSet f2 dateTree)
+        let s2 = findSet (F.Or(f1,f2)) dateTree
+        s1 = s2
 

@@ -49,39 +49,39 @@ module Path =
             printfn "%A" ys
             false
 
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Stop is identity for <|>`` p =
-//        let tree = genDatesTree ()
-//        let p1 = p <|> Stop
-//        let p2 = Stop <|> p
-//        let es = findSet p tree
-//        let es1 = findSet p1 tree
-//        let es2 = findSet p2 tree
-//        es == es1 && es1 == es2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Go is identity for <&>`` p =
-//        let tree = genDatesTree ()
-//        let p1 = p <&> Go
-//        let p2 = Go <&> p
-//        let es = findSet p tree
-//        let es1 = findSet p1 tree
-//        let es2 = findSet p2 tree
-//        es == es1 && es1 == es2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Join paths with or`` p1 p2 =
-//        let tree = genDatesTree ()
-//        let path = p1 <|> p2
-//        let es1 = findSet path tree
-//        let es2 = Set.union (findSet p1 tree)  (findSet p2 tree)
-//        es1 == es2
-//
-//    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-//    let ``Join paths with and`` p1 p2 =
-//        let tree = genDatesTree ()
-//        let path = p1 <&> p2
-//        let es1 = findSet path tree
-//        let es2 = Set.intersect (findSet p1 tree)  (findSet p2 tree)
-//        es1 == es2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Stop is identity for <|>`` p =
+        let tree = genDatesTree ()
+        let p1 = p <|> Stop
+        let p2 = Stop <|> p
+        let es = findSet p tree
+        let es1 = findSet p1 tree
+        let es2 = findSet p2 tree
+        es == es1 && es1 == es2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Go is identity for <&>`` p =
+        let tree = genDatesTree ()
+        let p1 = p <&> Go
+        let p2 = Go <&> p
+        let es = findSet p tree
+        let es1 = findSet p1 tree
+        let es2 = findSet p2 tree
+        es == es1 && es1 == es2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Join paths with or`` p1 p2 =
+        let tree = genDatesTree ()
+        let path = p1 <|> p2
+        let es1 = findSet path tree
+        let es2 = Set.union (findSet p1 tree)  (findSet p2 tree)
+        es1 == es2
+
+    [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
+    let ``Join paths with and`` p1 p2 =
+        let tree = genDatesTree ()
+        let path = p1 <&> p2
+        let es1 = findSet path tree
+        let es2 = Set.intersect (findSet p1 tree)  (findSet p2 tree)
+        es1 == es2
