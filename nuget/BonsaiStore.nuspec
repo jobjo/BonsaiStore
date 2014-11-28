@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <owners>@authors@</owners>
+    <licenseUrl>http://github.com/fsprojects/BonsaiStore/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>http://fsprojects.github.com/BonsaiStore</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/fsprojects/ProjectScaffold/master/docs/files/img/logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>@summary@</summary>
+    <description>@description@</description>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <tags>@tags@</tags>
+    <dependencies>
+      <dependency id="FsLinqFixed" version="2.1.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\bin\BonsaiStore.dll" target="lib/net40" />
+    <file src="..\bin\BonsaiStore.pdb" target="lib/net40" />
+    <file src="..\bin\BonsaiStore.Internal.dll" target="lib/net40" />
+    <file src="..\bin\BonsaiStore.Internal.pdb" target="lib/net40" />
+    <file src="..\bin\RangeMap.dll" target="lib/net40" />
+    <file src="..\bin\Uniplate.dll" target="lib/net40" />
+  </files>
+</package>
