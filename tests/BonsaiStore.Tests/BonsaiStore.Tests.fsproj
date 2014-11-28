@@ -60,7 +60,6 @@
     <Compile Include="Path.fs" />
     <Compile Include="Filter.fs" />
     <Compile Include="MapReduce.fs" />
-    <Compile Include="Quatations.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">
