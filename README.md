@@ -1,6 +1,6 @@
 Bonsai Store - F# based reporting
 ==============================================================
-*Bonsai Store* is a project with the purpose of providing efficient reporting over sets of items of user defined data types, via an F# interface. A *Bonsai Store* can be constructed programmatically over any data type. If the data type contains indexes (annotated member methods), a tree-based (hence the name data structure is constructed internally, allowing for efficient filtering.
+*Bonsai Store* is a project with the purpose of providing efficient reporting over sets of items of user defined data types, via an F# interface. A *Bonsai Store* can be constructed programmatically over any data type. If the data type contains indexes (annotated member methods), a tree-based (hence the name)data structure is constructed internally, allowing for efficient filtering.
 
 ## Build ##
 [![Build status](https://ci.appveyor.com/api/projects/status/6m12l77v5pn7re4e/branch/master?svg=true)](https://ci.appveyor.com/project/jobjo/bonsaistore/branch/master)
