@@ -5,14 +5,14 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>7932985f-46d6-47a3-bda8-be691e286a95</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Store</RootNamespace>
-    <AssemblyName>BonsaiStore.Internal</AssemblyName>
+    <ProjectGuid>7d5e9223-96c2-4692-963c-854abe32090d</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>BonsaiStore.Examples</RootNamespace>
+    <AssemblyName>BonsaiStore.Examples</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFSharpCoreVersion>4.3.0.0</TargetFSharpCoreVersion>
-    <Name>BonsaiStore.Internal</Name>
-    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFSharpCoreVersion>4.3.1.0</TargetFSharpCoreVersion>
+    <Name>BonsaiStore.Examples</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,37 +22,45 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\Store.XML</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Debug\BonsaiStore.Examples.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\BonsaiStore.Internal.xml</DocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DocumentationFile>bin\Release\BonsaiStore.Examples.XML</DocumentationFile>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FsCheck">
+      <HintPath>..\..\packages\FsCheck\lib\net45\FsCheck.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
-    <Reference Include="RangeMap">
-      <HintPath>..\..\lib\RangeMap.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
-    <Reference Include="Uniplate">
-      <HintPath>..\..\lib\Uniplate.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Utils.fs" />
-    <Compile Include="Tree.fs" />
-    <Compile Include="Path.fs" />
-    <Compile Include="Filter.fs" />
+    <Compile Include="SalesItem.fs" />
+    <Compile Include="SalesItemGenerator.fs" />
+    <Compile Include="Table.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BonsaiStore\BonsaiStore.fsproj">
+      <Name>BonsaiStore</Name>
+      <Project>{7e90d6ce-a10b-4858-a5bc-41df7250cbca}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

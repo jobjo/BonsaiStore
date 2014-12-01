@@ -74,11 +74,9 @@ module Tree =
 
     /// Extract all elements from a tree.
     let elements (tree: Tree<'K,'L,'T>) =
-        let xs = System.Collections.Generic.List<_>()
         let rec go = function
-            | Tree.Leaf x  -> xs.Add x
-            | Tree.Node n   -> for (_,v) in n.Children.Elements() do go v
+            | Tree.Leaf x  -> [x]
+            | Tree.Node n   -> List.collect (snd >> go) <| n.Children.Elements()
         go tree
-        xs.ToArray() |> List.ofArray
 
 

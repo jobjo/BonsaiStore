@@ -67,7 +67,7 @@ module Path =
                 !<[
                     P.print (sprintf "%s [" (string (box ft)))
                     P.indent <| printFilter step.BranchSelector
-                    P.print "]"                
+                    P.print "]"
                 ]
         printPath >> P.run
 
@@ -124,7 +124,7 @@ module Path =
                     map x
         go path tree
 
-    /// Finds all elements matchign the path.
+    /// Finds all elements matching the path.
     let find path tree = 
         mapReduce [] (fun x -> [x]) (Seq.toList >> List.concat) path tree
 

@@ -48,13 +48,15 @@ let description =
 let authors = [ "Joel Bjornson" ]
 
 // Tags for your project (for NuGet package)
-let tags = "F#, datastructures, reporting, filtering"
+let tags = "F#, data structures, reporting"
 
 // File system information 
 let solutionFile  = "BonsaiStore.sln"
 
 // Pattern specifying assemblies to be tested using NUnit
 let testAssemblies = "tests/**/bin/Release/*Tests*.exe"
+
+let testResultDir = "tests/test-results"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
 // The profile where the project is posted
@@ -108,7 +110,24 @@ Target "AssemblyInfo" (fun _ ->
 // Clean build results
 
 Target "Clean" (fun _ ->
-    CleanDirs ["bin"; "temp"]
+    // Delete obj and bin folders from sub directories.
+    [
+        "src/BonsaiStore"
+        "src/BonsaiStore.Internal"
+        "benchmarks/BonsaiStore.Benchmarks"
+        "examples/BonsaiStore.Examples.SalesStore"
+        "examples/BonsaiStore.Examples.SalesStore"
+        "tests/BonsaiStore.Tests"
+    ]
+    |> List.collect (fun dir -> [sprintf "%s/bin" dir; sprintf "%s/obj" dir] )
+    |> DeleteDirs
+
+    // Clean bin and temp folders
+    [
+        "bin"
+        "temp"
+    ]
+    |> CleanDirs
 )
 
 Target "CleanDocs" (fun _ ->
@@ -126,14 +145,13 @@ Target "Build" (fun _ ->
 
 // --------------------------------------------------------------------------------------
 // Run the unit tests using test runner
-
 Target "RunTests" (fun _ ->
     !! testAssemblies
     |> xUnit (fun p ->
         {p with
             ShadowCopy = false
-            HtmlOutput = true
-            OutputDir = "tests/test-results" }
+            HtmlOutput = false
+            OutputDir = testResultDir }
     )
 )
 
@@ -209,6 +227,10 @@ Target "GenerateHelp" (fun _ ->
     generateHelp true
 )
 
+Target "CopyBinaries" (fun _ ->
+    CopyFiles "bin/" !!"src/BonsaiStore/bin/**"
+    CopyFiles "bin/" !!"src/BonsaiStore.Internal/bin/**"
+)
 
 Target "KeepRunning" (fun _ ->    
     use watcher = new FileSystemWatcher(DirectoryInfo("docs/content").FullName,"*.*")
@@ -272,6 +294,7 @@ Target "All" DoNothing
 "Clean"
   ==> "AssemblyInfo"
   ==> "Build"
+  ==> "CopyBinaries"
   ==> "RunTests"
   =?> ("GenerateReferenceDocs",isLocalBuild && not isMono)
   =?> ("GenerateDocs",isLocalBuild && not isMono)
@@ -299,5 +322,7 @@ Target "All" DoNothing
 
 "BuildPackage"
   ==> "Release"
+
+// "All" ==> "CopyBinaries"
 
 RunTargetOrDefault "All"

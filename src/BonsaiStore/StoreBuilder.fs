@@ -42,10 +42,24 @@ module StoreBuilder =
                         )
                     mr.Reduce (ys :> seq<'R> )
                 F.mapReduce mr.Empty map mr.Reduce filter tree
+
+        // Report function
+        let filter (filterExp: Expr<'T -> bool>) =
+            let filterFun = filterExp.Compile() ()
+            let filter = toFilter filterExp
+            let res = F.find filter tree
+            res
+            |> Seq.collect (Seq.filter filterFun)
+
         { new IBonsaiStore<'T,'K> with
             member this.Report exp mr = report exp mr
+            member this.Filter exp = filter exp
             member this.Add x = failwith "Not implemented"
         }
+
+    /// Filter
+    let filter<'T,'K when 'K: comparison>(store: IBonsaiStore<'T,'K>) =
+        store.Filter
 
     /// Create a report from a store.
     let report<'T,'K, 'R when 'K : comparison>  (store: IBonsaiStore<'T,'K>) 
@@ -55,4 +69,3 @@ module StoreBuilder =
                                                 (reduce: seq<'R> -> 'R) 
                                                 : 'R =
         store.Report filter { Empty = empty; Map = map; Reduce = reduce}
-        
