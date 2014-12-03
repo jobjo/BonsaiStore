@@ -40,7 +40,7 @@ module StoreBuilder =
                         |> Array.choose (fun x ->
                             if filterFun x then Some (mr.Map x) else None
                         )
-                    mr.Reduce (ys :> seq<'R> )
+                    mr.Reduce ys
                 F.mapReduce mr.Empty map mr.Reduce filter tree
 
         // Report function
@@ -66,6 +66,6 @@ module StoreBuilder =
                                                 (filter: Expr<'T -> bool>) 
                                                 (empty: 'R) 
                                                 (map: 'T -> 'R) 
-                                                (reduce: seq<'R> -> 'R) 
+                                                (reduce: 'R [] -> 'R) 
                                                 : 'R =
         store.Report filter { Empty = empty; Map = map; Reduce = reduce}

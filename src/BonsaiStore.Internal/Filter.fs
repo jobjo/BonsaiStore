@@ -227,7 +227,6 @@ module Filter =
     let find f t = find (toPath f) t
 
     /// Given a identity, a mapper and reducer function traverses the
-    let mapReduce mzero map reduce f tree =
-        let path = toPath f
-        mapReduce mzero map reduce path tree
+    let mapReduce mzero map reduce  f tree =
+        mapReduce mzero map reduce (toPath f) tree
 

@@ -67,7 +67,7 @@ module Path =
                 !<[
                     P.print (sprintf "%s [" (string (box ft)))
                     P.indent <| printFilter step.BranchSelector
-                    P.print "]"
+                    P.print "]"                
                 ]
         printPath >> P.run
 
@@ -75,14 +75,14 @@ module Path =
     let mapReduce<'K,'FT,'T, 'R when 'K : comparison and 'FT : comparison>
                     (empty: 'R) 
                     (map: 'T -> 'R) 
-                    (reduce: seq<'R> -> 'R)
+                    (reduce: 'R [] -> 'R)
                     (path: Path<'K,'FT>) 
                     (tree: Tree<'K,'FT,'T>) : 'R =
         let rec go path tree =
             match path with
             | Go        ->
                 Tree.elements tree
-                |> List.map map
+                |> Array.map map
                 |> reduce
             | Stop      ->
                 empty
@@ -92,7 +92,8 @@ module Path =
                     match step.BranchSelector with
                     | Include nodes  ->
                         nodes
-                        |> List.choose (fun (k,p) ->
+                        |> Array.ofList
+                        |> Array.choose (fun (k,p) ->
                             match n.Children.Lookup k with
                             | Some childTree    -> Some <| go p childTree
                             | None              -> None
@@ -100,24 +101,24 @@ module Path =
                         |> reduce
                     | BranchSelector.Custom f   ->
                         n.Children.Elements()
-                        |> Seq.map (fun (k,t) ->go (f k) t)
+                        |> Array.map (fun (k,t) ->go (f k) t)
                         |> reduce
                     | From (kl,p)        ->
                         n.Children.LookupRange (Some kl) None
-                        |> List.map (go p)
+                        |> Array.map (go p)
                         |> reduce
                     | To (kh,p)        ->
                         n.Children.LookupRange None (Some kh)
-                        |> List.map (go p)
+                        |> Array.map (go p)
                         |> reduce
                     | Range (kl,kh,p)   ->
                         n.Children.LookupRange (Some kl) (Some kh)
-                        |> List.map (go p)
+                        |> Array.map (go p)
                         |> reduce
                 | Tree.Node n           ->
                     // Continue to the next level.
                     n.Children.Elements()
-                    |> List.map (snd >>  go path)
+                    |> Array.map (snd >>  go path)
                     |> reduce
                 | Tree.Leaf x ->
                     // We reached the bottom of the tree so table is returned.

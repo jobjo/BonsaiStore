@@ -17,7 +17,7 @@ module Interfaces =
         {
             Empty : 'R
             Map : 'T -> 'R
-            Reduce : seq<'R> -> 'R
+            Reduce : 'R []  -> 'R
         }
 
     /// Interface for reporting

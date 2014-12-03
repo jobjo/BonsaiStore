@@ -75,8 +75,10 @@ module Tree =
     /// Extract all elements from a tree.
     let elements (tree: Tree<'K,'L,'T>) =
         let rec go = function
-            | Tree.Leaf x  -> [x]
-            | Tree.Node n   -> List.collect (snd >> go) <| n.Children.Elements()
+            | Tree.Leaf x   ->
+                [|x|]
+            | Tree.Node n   -> 
+                Array.collect (snd >> go) <| n.Children.Elements()
         go tree
 
 

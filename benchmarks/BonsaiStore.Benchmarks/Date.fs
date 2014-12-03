@@ -10,15 +10,19 @@ module Date =
             Day : int
             DisplayString : string
         }
+
         [<Index>]
-        member this.DisplayIx = 
-            this.DisplayString.GetHashCode()
-//        [<Index>]
-//        member this.YearIx = this.Year
-//        [<Index>]
-//        member this.MonthIx = this.Month
-//        [<Index>]
-//        member this.DayIx = this.Day
+        member this.DisplayIx = this.DisplayString.GetHashCode()
+        
+        [<Index; Level(1)>]
+        member this.YearIx = this.Year
+
+        [<Index; Level(2)>]
+        member this.MonthIx = this.Month
+
+        [<Index; Level(3)>]
+        member this.DayIx = this.Day
+
 
     /// Builds a date store.
     let genDates n =
