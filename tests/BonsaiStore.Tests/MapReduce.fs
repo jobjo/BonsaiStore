@@ -16,8 +16,8 @@ module MapReduce =
         let n1 = F.mapReduce mzero map reduce f dateTree
         let n2 =
             T.elements dateTree
-            |> List.map (Array.filter <| toPredicate f)
-            |> List.map map
+            |> Array.map (Array.filter <| toPredicate f)
+            |> Array.map map
             |> reduce
         n1 = n2
 
@@ -28,6 +28,6 @@ module MapReduce =
         let map = Array.length
         let reduce = Seq.sum
         let n1 = F.mapReduce mzero map reduce f dateTree
-        let n2 = F.find f dateTree |> List.map map |> reduce
+        let n2 = F.find f dateTree |> Array.map map |> reduce
         n1 = n2
 

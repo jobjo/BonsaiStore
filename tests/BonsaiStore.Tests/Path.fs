@@ -25,7 +25,7 @@ module Path =
 
     let private findSet path tree =
         find path tree
-        |> Set.ofList
+        |> Set.ofArray
 
     let private (==) xs ys =
         if xs <> ys then
@@ -37,8 +37,8 @@ module Path =
             true
 
     let private compare tree path p =
-        let xs = find path tree |> List.collect id |> Set.ofList
-        let ys = Set.ofList <| List.filter p (List.collect id (T.elements tree))
+        let xs = find path tree |> Array.collect id |> Set.ofArray
+        let ys = Set.ofSeq <| Array.filter p (Array.collect id (T.elements tree))
         if xs = ys then
             true
         else

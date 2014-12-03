@@ -127,7 +127,7 @@ module Path =
 
     /// Finds all elements matching the path.
     let find path tree = 
-        mapReduce [] (fun x -> [x]) (Seq.toList >> List.concat) path tree
+        mapReduce [||] (fun x -> [|x|]) (Seq.toArray >> Array.concat) path tree
 
     /// Compare two paths. Returns None if any of the given
     /// paths contains a custom branch.
