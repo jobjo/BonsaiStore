@@ -44,16 +44,30 @@ module StoreBuilder =
                 F.mapReduce mr.Empty map mr.Reduce filter tree
 
         // Report function
+        let reportParallel (filterExp: Expr<'T -> bool>) =
+            let filterFun = filterExp.Compile() ()
+            let filter = toFilter filterExp
+            fun (mr: MapReducer<'T,'R>) ->
+                let map xs =
+                    let ys =
+                        xs
+                        |> Array.choose (fun x ->
+                            if filterFun x then Some (mr.Map x) else None
+                        )
+                    mr.Reduce ys
+                F.mapReduceParallel mr.Empty map mr.Reduce filter tree
+
+        // Report function
         let filter (filterExp: Expr<'T -> bool>) =
             let filterFun = filterExp.Compile() ()
             let filter = toFilter filterExp
             let res = F.find filter tree
-            res
-            |> Seq.collect (Seq.filter filterFun)
+            Seq.collect (Seq.filter filterFun) res
 
         { new IBonsaiStore<'T,'K> with
             member this.Report exp mr = report exp mr
             member this.Filter exp = filter exp
+            member this.ReportParallel exp mr = reportParallel exp mr
             member this.Add x = failwith "Not implemented"
         }
 
@@ -69,3 +83,12 @@ module StoreBuilder =
                                                 (reduce: 'R [] -> 'R) 
                                                 : 'R =
         store.Report filter { Empty = empty; Map = map; Reduce = reduce}
+
+    /// Create a report from a store.
+    let reportParallel<'T,'K, 'R when 'K : comparison>  (store: IBonsaiStore<'T,'K>) 
+                                                (filter: Expr<'T -> bool>) 
+                                                (empty: 'R) 
+                                                (map: 'T -> 'R) 
+                                                (reduce: 'R [] -> 'R) 
+                                                : 'R =
+        store.ReportParallel filter { Empty = empty; Map = map; Reduce = reduce}

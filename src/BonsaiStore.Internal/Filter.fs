@@ -230,3 +230,7 @@ module Filter =
     let mapReduce mzero map reduce  f tree =
         mapReduce mzero map reduce (toPath f) tree
 
+    /// Given a identity, a mapper and reducer function traverses the
+    let mapReduceParallel mzero map reduce  f tree =
+        mapReduceParallel mzero map reduce (toPath f) tree
+

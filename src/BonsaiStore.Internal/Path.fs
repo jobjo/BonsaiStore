@@ -125,6 +125,59 @@ module Path =
                     map x
         go path tree
 
+    let mapReduceParallel<'K,'FT,'T, 'R when 'K : comparison and 'FT : comparison>
+                    (empty: 'R) 
+                    (map: 'T -> 'R) 
+                    (reduce: 'R [] -> 'R)
+                    (path: Path<'K,'FT>) 
+                    (tree: Tree<'K,'FT,'T>) : 'R =
+        let rec go path tree =
+            match path with
+            | Go        ->
+                Tree.elements tree
+                |> Array.Parallel.map map
+                |> reduce
+            | Stop      ->
+                empty
+            | Step step ->
+                match tree with
+                | Tree.Node n  when n.Level = step.FilterType   ->
+                    match step.BranchSelector with
+                    | Include nodes  ->
+                        nodes
+                        |> Array.ofList
+                        |> Array.choose (fun (k,p) ->
+                            match n.Children.Lookup k with
+                            | Some childTree    -> Some <| go p childTree
+                            | None              -> None
+                        )
+                        |> reduce
+                    | BranchSelector.Custom f   ->
+                        n.Children.Elements()
+                        |> Array.Parallel.map (fun (k,t) ->go (f k) t)
+                        |> reduce
+                    | From (kl,p)        ->
+                        n.Children.LookupRange (Some kl) None
+                        |> Array.Parallel.map (go p)
+                        |> reduce
+                    | To (kh,p)        ->
+                        n.Children.LookupRange None (Some kh)
+                        |> Array.Parallel.map (go p)
+                        |> reduce
+                    | Range (kl,kh,p)   ->
+                        n.Children.LookupRange (Some kl) (Some kh)
+                        |> Array.Parallel.map (go p)
+                        |> reduce
+                | Tree.Node n           ->
+                    // Continue to the next level.
+                    n.Children.Elements()
+                    |> Array.Parallel.map (snd >>  go path)
+                    |> reduce
+                | Tree.Leaf x ->
+                    // We reached the bottom of the tree so table is returned.
+                    map x
+        go path tree
+
     /// Finds all elements matching the path.
     let find path tree = 
         mapReduce [||] (fun x -> [|x|]) (Seq.toArray >> Array.concat) path tree
