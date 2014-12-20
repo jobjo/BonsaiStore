@@ -12,12 +12,12 @@ module Program =
         printfn "Generating items"
         let salesItems = SalesItemGenerator.randomSalesItems (int 1e3)
         printfn "Building the store"
-        let store = SB.buildStore<SalesItem, int> salesItems
+        let store = SB.buildStore<SalesItem> salesItems
         printfn "Done building the item store"
         store
 
     /// Top team report.
-    let topTeams (salesStore: IBonsaiStore<SalesItem,int>) filter =
+    let topTeams (salesStore: IBonsaiStore<SalesItem>) filter =
         SB.report
             salesStore
             filter
@@ -26,7 +26,7 @@ module Program =
             T.merge
     
     /// Count elements
-    let totalNumSales (salesStore: IBonsaiStore<SalesItem,int>) filter =
+    let totalNumSales (salesStore: IBonsaiStore<SalesItem>) filter =
         SB.report
             salesStore
             filter

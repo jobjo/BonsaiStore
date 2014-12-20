@@ -11,6 +11,7 @@ module Tree =
         {
             /// Filter type
             Level : 'L
+
             /// Child nodes
             Children : IRangeMap<'K, Tree<'K,'L,'T>>
         }

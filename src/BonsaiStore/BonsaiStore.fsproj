@@ -51,6 +51,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Interfaces.fs" />
+    <Compile Include="ExpressionUtils.fs" />
     <Compile Include="Quatations.fs" />
     <Compile Include="StoreBuilder.fs" />
   </ItemGroup>
