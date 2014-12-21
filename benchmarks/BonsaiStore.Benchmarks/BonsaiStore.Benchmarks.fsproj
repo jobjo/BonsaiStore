@@ -78,6 +78,7 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="Utils.fs" />
+    <Compile Include="Table.fs" />
     <Compile Include="Date.fs" />
     <Compile Include="SalesItems.fs" />
     <Compile Include="DateReports.fs" />

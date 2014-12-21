@@ -146,7 +146,7 @@ module Path =
                     | Include nodes  ->
                         nodes
                         |> Array.ofList
-                        |> Array.choose (fun (k,p) ->
+                        |> Array.Parallel.choose (fun (k,p) ->
                             match n.Children.Lookup k with
                             | Some childTree    -> Some <| go p childTree
                             | None              -> None
@@ -231,7 +231,6 @@ module Path =
             Include [l,p]
         else
             Include []
-
 
     /// Join two paths so that the resulting path will include a node if
     /// and only if it's selected by both of the given paths.

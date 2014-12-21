@@ -17,8 +17,8 @@ module SalesItems =
         [<Index; Level(0)>]
         member private this.DateIx() = 
             let span = this.Date - DateTime(1900,1,1)
-            span.Days / 1
-//
+            span.Days / 100
+
 //        [<Index; Level(1)>]
 //        member private this.PriceIx() = int (this.Price / 100.)
 //
@@ -66,7 +66,7 @@ module SalesItems =
             ]
         let dates =
             let d0 = DateTime(2000, 1, 1)
-            [for d in [1 .. 365 * 4] do yield d0.AddDays(float d)]
+            [for d in [1 .. 365 * 15] do yield d0.AddDays(float d)]
         [|
             for i in [1 .. n] do
                 let prod =  products.[r.Next() % products.Length]

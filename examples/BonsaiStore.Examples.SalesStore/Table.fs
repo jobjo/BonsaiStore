@@ -4,6 +4,7 @@ module Table =
 
     type Table<'K,'V when 'K : comparison> = 
         { ElementCount : int; Table : Map<'K,'V> }
+
     let empty = {ElementCount = 0; Table = Map.empty}
 
     /// Merges a list of tables

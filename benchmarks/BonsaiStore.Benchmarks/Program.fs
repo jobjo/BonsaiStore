@@ -20,18 +20,22 @@ module Main =
                     |> Chart.WithTitle group.Name
         ]
     
+    module SR = SalesItemsReports
+    module SB = FSharp.BonsaiStore.StoreBuilder
+    open SalesItems
+
     [<EntryPoint>]
     [<STAThread>]
     let main argv =
+        let results = SalesItemsReports.totalSalesBenchMark ()
 
+        Utils.showBenchmark results
+        
         Application.EnableVisualStyles()
         Application.SetCompatibleTextRenderingDefault false
-        SalesItemsReports.totalSalesBenchMark()
-        |> ignore
 
         let chart =
-            //R.countItemsBenchMark ()
-            SalesItemsReports.totalSalesBenchMark ()
+            results
             |> chartBenchmark
             |> Chart.Rows
         
