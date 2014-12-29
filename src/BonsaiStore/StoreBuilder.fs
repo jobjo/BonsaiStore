@@ -35,10 +35,6 @@ module StoreBuilder =
             let filterFun = Q.compileQuatationFilter filterExp
             let filter = toFilter filterExp
             fun (mr: MapReducer<'T,'R>) ->
-                let map =
-                    Array.Parallel.choose (fun x ->
-                        if filterFun x then Some (mr.Map x) else None
-                    )
-                    >> mr.Reduce
+                let map x = if filterFun x then (mr.Map x) else mr.Empty
                 F.report mr.Empty map mr.Reduce filter tree
         { new IStore<'T> with member this.Report exp mr = report exp mr }

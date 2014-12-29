@@ -120,9 +120,11 @@ module Path =
                     n.Children.Elements()
                     |> Array.Parallel.map (snd >>  go path)
                     |> reduce
-                | Tree.Leaf x ->
-                    // We reached the bottom of the tree so table is returned.
-                    map x
+                | Tree.Leaf xs ->
+                    // We reached the bottom of the tree.
+                    xs
+                    |> Array.Parallel.map map
+                    |> reduce
         go path tree
 
     /// Compare two paths. Returns None if any of the given

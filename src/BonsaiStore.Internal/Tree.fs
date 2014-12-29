@@ -22,7 +22,7 @@ module Tree =
     /// A Tree is either a node or a leaf.
     and Tree<'K,'L,'T> =
         | Node of Node<'K,'L,'T>
-        | Leaf of 'T
+        | Leaf of 'T []
 
     /// Functor instance for tree.
     let rec map f = function
@@ -33,14 +33,14 @@ module Tree =
                 Children =  n.Children.Map (fun t -> map f t) 
             }
         | Leaf x    -> 
-            Leaf <| f x
+            Leaf <| Array.map f x
 
     /// Pretty prints a tree.
     let showTree<'K, 'L,'T when 'K : comparison> =
         let rec go (tree: Tree<'K, 'L,'T>) =
             match tree with
-            | Leaf (x: 'T)    ->
-                P.print (string (box x))
+            | Leaf (x: 'T [])    ->
+                P.print <| sprintf "Num[%A]" (Array.length x)
             | Node (node: Node<'K, 'L,'T>) ->
                 !< [
                     yield P.print (sprintf "[%s]" <| node.Level.ToString())
@@ -75,17 +75,17 @@ module Tree =
                     )
                     |> conf.BuildMap
                 Tree.Node {
-                    Level = level; 
-                    AllElements = Some [|items|]; 
+                    Level = level
+                    AllElements = Some items
                     Children = children
                 }
         go (Array.ofSeq elements) levels
 
     /// Extract all elements from a tree.
-    let elements (tree: Tree<'K,'L,'T>) =
+    let elements (tree: Tree<'K,'L,'T>) : 'T [] =
         match tree with
-        | Leaf x -> 
-            [|x|]
+        | Leaf (xs: 'T []) -> 
+            xs
         | Node n ->
             // Check if elements are accumulated.
             match n.AllElements with
@@ -94,8 +94,8 @@ module Tree =
             | None      ->
                 // Collect all elements
                 let rec go = function
-                    | Tree.Leaf x   ->
-                        [|x|]
+                    | Tree.Leaf xs   ->
+                        xs
                     | Tree.Node n   -> 
                         Array.collect (snd >> go) <| n.Children.Elements()
                 go tree
