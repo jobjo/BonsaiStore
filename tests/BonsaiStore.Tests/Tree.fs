@@ -7,9 +7,6 @@ module Tree =
     module T = FSharp.BonsaiStore.Internal.Tree
     module C = Common
     
-
-
-
     let genDates () =
         let r = new System.Random()
         [

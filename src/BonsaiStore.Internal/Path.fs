@@ -4,29 +4,32 @@ module Path =
     open Tree
     module P = Utils.Printer
 
+    type Key = int
+    type Level = int
+
     /// Represents an instruction for selecting a set of branches.
-    type BranchSelector<'K,'T> =
-        | Include of list<'K * Path<'K,'T>>
-        | Custom of ('K -> Path<'K,'T>)
-        | From of 'K * Path<'K,'T>
-        | To of 'K * Path<'K,'T>
-        | Range of 'K * 'K * Path<'K,'T>
+    type BranchSelector =
+        | Include of list<Key * Path>
+        | Custom of (Key -> Path)
+        | From of Key * Path
+        | To of Key * Path
+        | Range of Key * Key * Path
 
     /// A path consists of a filter type denoting the level in tree,
     /// along with a filter.
-    and Step<'K,'T> = 
-        { FilterType : 'T ; BranchSelector : BranchSelector<'K,'T> }
+    and Step = 
+        { Level : Level ; BranchSelector : BranchSelector }
 
     /// A Path is either an go, stop or step instruction.
-    and Path<'K,'T> =
+    and Path =
         | Go
         | Stop
-        | Step of Step<'K,'T>
+        | Step of Step
 
     /// Pretty prints a path.
     let showPath<'K,'T when 'K : comparison> =
         let (!<) = P.(!<)
-        let rec printFilter (f: BranchSelector<'K,'T>) =
+        let rec printFilter (f: BranchSelector) =
             match f with
             | Include ns ->
                 !<[
@@ -56,14 +59,14 @@ module Path =
                     P.print "]"                    
                 ]
 
-        and printPath (p: Path<'K,'T>) =
+        and printPath (p: Path) =
             match p with
             | Go        ->
                 P.print "Go"
             | Stop      ->
                 P.print "Stop"
             | Step step ->
-                let ft : 'T =  step.FilterType
+                let ft =  step.Level
                 !<[
                     P.print (sprintf "%s [" (string (box ft)))
                     P.indent <| printFilter step.BranchSelector
@@ -75,8 +78,8 @@ module Path =
                     (empty: 'R) 
                     (map: 'T -> 'R) 
                     (reduce: 'R [] -> 'R)
-                    (path: Path<'K,'FT>)
-                    (tree: Tree<'K,'FT,'T>) : 'R =
+                    (path: Path)
+                    (tree: Tree<'T>) : 'R =
 
         let rec go path tree =
             match path with
@@ -88,7 +91,7 @@ module Path =
                 empty
             | Step step ->
                 match tree with
-                | Tree.Node n  when n.Level = step.FilterType   ->
+                | Tree.Node n  when n.Level = step.Level   ->
                     match step.BranchSelector with
                     | Include nodes  ->
                         nodes
@@ -136,7 +139,7 @@ module Path =
         | Stop, Stop        -> 
             Some true 
         | Step s1, Step s2  ->
-            if s1.FilterType = s2.FilterType then
+            if s1.Level = s2.Level then
                 match s1.BranchSelector, s2.BranchSelector with
                     | Custom _, _
                     | _, Custom _                           -> 
@@ -193,7 +196,7 @@ module Path =
                 | Include []    -> Stop
                 | bs            -> Step {s1 with BranchSelector = bs}
             // Check if the levels of the steps are matching.
-            if s1.FilterType = s2.FilterType then
+            if s1.Level = s2.Level then
                 match s1.BranchSelector, s2.BranchSelector with
                 | Include is1, Include is2              ->
                     let nodes =
@@ -246,7 +249,7 @@ module Path =
                     step <| range l h (p1 <&> p2)
                 | b1, b2                                ->
                     p2 <&> p1
-            elif s1.FilterType < s2.FilterType then
+            elif s1.Level < s2.Level then
                 match s1.BranchSelector with
                 | Include is        ->
                     let fs = [for (k,p) in is do yield (k, p <&> p2)]
@@ -283,7 +286,7 @@ module Path =
                 |> List.choose (fun (k1,p) -> if k = k1 then Some p else None)
                 |> List.fold (<|>) Stop
             // Check if the levels of the steps are matching.
-            if s1.FilterType = s2.FilterType then
+            if s1.Level = s2.Level then
                 match s1.BranchSelector, s2.BranchSelector with
                 | Include is1, Include is2              ->
                     let is = is1 @ is2
@@ -375,7 +378,7 @@ module Path =
                     |> step
                 | b1, b2                            ->
                     p2 <|> p1
-            elif s1.FilterType < s2.FilterType then
+            elif s1.Level < s2.Level then
                 match s1.BranchSelector with
                 | Include is        ->
                     step <| Custom (fun k ->  nextIncludePath is k <|> p2)

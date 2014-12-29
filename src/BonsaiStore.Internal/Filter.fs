@@ -3,8 +3,9 @@
 module Filter =
     
     open FSharp.Data.Generics
+    open Tree
     open Path
-
+    
     module P = Utils.Printer
 
     /// Comparison operators.
@@ -19,17 +20,17 @@ module Filter =
             | GET   -> "GET"
 
     /// Filter.
-    type Filter<'P,'K when 'K : comparison> =
+    type Filter =
         | True
         | False
-        | Property of 'P * BinOp * 'K
-        | Not of Filter<'P,'K>
-        | And of Filter<'P,'K> * Filter<'P,'K>
-        | Or of Filter<'P,'K> * Filter<'P, 'K>
+        | Property of Level * BinOp * Key
+        | Not of Filter
+        | And of Filter * Filter
+        | Or of Filter * Filter
 
     /// Uniplate instance for Filter.
     let UP<'T,'K when 'K : comparison> = 
-        Uniplate.mkUniplate <| fun (f: Filter<'T,'K>) ->
+        Uniplate.mkUniplate <| fun (f: Filter) ->
             match f with
             | True              -> [] , fun _ -> True
             | False             -> [], fun _ -> False
@@ -39,7 +40,7 @@ module Filter =
             | Or (f1,f2)        -> [f1; f2], fun fs -> Or (fs.[0], fs.[1])
 
     /// Pretty print filter.
-    let showFilter<'T,'K when 'K : comparison> : Filter<'T,'K> -> string =
+    let showFilter<'T,'K when 'K : comparison> : Filter -> string =
         let (!<) = P.(!<)
         let block name tp =
             !<[
@@ -93,7 +94,7 @@ module Filter =
     let any fs = Seq.fold (<|>) False fs
 
     /// Normalizes filter by applying rewrite rules.
-    let normalize<'T, 'K when 'K : comparison and 'T : equality> : Filter<'T,'K> -> Filter<'T,'K> = 
+    let normalize<'T, 'K when 'K : comparison and 'T : equality> : Filter -> Filter = 
         let reorder op f1 f2 f3 =
             match f1, f2, f3 with
             | Property (p1, _, _), _,  Property (p3, _, _)  when p1 = p3    ->
@@ -147,9 +148,7 @@ module Filter =
                 None
 
     /// Converts a filter to a predicate function.
-    let rec toPredicate<'P,'K,'T when 'K : comparison> 
-                        (f: 'P -> 'T -> 'K) 
-                        (filter: Filter<'P,'K>) =
+    let rec toPredicate<'T> (f : Level -> 'T -> Key) (filter: Filter) =
         match filter with
         | True          -> 
             fun _ -> true
@@ -187,11 +186,11 @@ module Filter =
         | Property (ft,op, c)       ->
             match op with
             | EQ    ->
-                Step {FilterType = ft; BranchSelector = Include [c, Go]}
+                Step {Level = ft; BranchSelector = Include [c, Go]}
             | LET   ->
-                Step {FilterType = ft; BranchSelector = To (c, Go)}
+                Step {Level = ft; BranchSelector = To (c, Go)}
             | GET   ->
-                Step {FilterType = ft; BranchSelector = From (c, Go)}
+                Step {Level = ft; BranchSelector = From (c, Go)}
         | Not f     ->
             let rec negatePath path =
                 match path with
@@ -227,8 +226,8 @@ module Filter =
     let report  (mzero: 'R) 
                 (map: 'T -> 'R) 
                 (reduce: 'R [] -> 'R) 
-                (f: Filter<int,int>) 
-                (tree: Tree.Tree<int,int,'T>) 
+                (f: Filter) 
+                (tree: Tree<'T>) 
                 : 'R =
         report mzero map reduce (toPath f) tree
 

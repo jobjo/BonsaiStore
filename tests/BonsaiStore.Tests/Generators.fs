@@ -3,35 +3,34 @@
 module Generators =
     
     open FsCheck
-    open Common
-    open FSharp.BonsaiStore
     open FSharp.BonsaiStore.Internal.Filter
     open FSharp.BonsaiStore.Internal.Path
 
-    let go :  Path<int, DateProperty> = Path.Go
-    let stop : Path<int, DateProperty> = Path.Stop
-    let step ft bs : Path<int, DateProperty> = Step {FilterType = ft; BranchSelector = bs}
+    let go :  Path = Path.Go
+    let stop : Path = Path.Stop
+    let step ft bs : Path = Step {Level = ft; BranchSelector = bs}
 
 
     let nextLevel = function
-        | DateProperty.Year     -> DateProperty.Month
-        | DateProperty.Month    -> DateProperty.Day
-        | DateProperty.Day      -> DateProperty.Day
+        | 0     -> 1
+        | 1     -> 2
+        | _     -> 0
 
-    let rec pathGen level : Gen<Path<int, DateProperty>> =
+
+    let rec pathGen level : Gen<Path> =
         let nextLevel = nextLevel level
         match level with
-        | DateProperty.Day      ->
+        | 2      ->
             Gen.elements [go; stop]
         | _                     ->
             Gen.oneof [
                 Gen.constant go
                 Gen.constant stop
-                Gen.map (step level) <| branchSelectorGen level
-                Gen.map (step nextLevel) <| branchSelectorGen nextLevel
+                Gen.map (step level) <| branchSelectorGen nextLevel
+                Gen.map (step level) <| branchSelectorGen nextLevel
             ]
 
-    and branchSelectorGen level : Gen<BranchSelector<int, DateProperty> > =
+    and branchSelectorGen level : Gen<BranchSelector> =
         let nextLevel = nextLevel level
         let selectList f t : Gen<list<int>> = 
             gen {
@@ -50,11 +49,11 @@ module Generators =
 
         let l,h =
             match level with
-            | DateProperty.Year     -> 1850, 2150
-            | DateProperty.Month    -> 1, 15
-            | DateProperty.Day      -> 1, 45
+            | 0 -> 1850, 2150
+            | 1 -> 1, 15
+            | _ -> 1, 45
 
-        let includeG  : Gen<BranchSelector<int, DateProperty>> =
+        let includeG  : Gen<BranchSelector> =
             gen {
                 let! ks = selectList l h
                 return! Gen.map Include <| withList (pathGen nextLevel) ks
@@ -102,9 +101,9 @@ module Generators =
             gen {
                 let! ft = 
                     Gen.oneof [
-                        Gen.constant Year
-                        Gen.constant Month
-                        Gen.constant Day
+                        Gen.constant 0
+                        Gen.constant 1
+                        Gen.constant 2
                     ]
                 let! value =
                     match ft with
@@ -151,8 +150,8 @@ module Generators =
     type CustomGenerators =
         static member Filter() = Arb.fromGen filterGen
         static member Path() = 
-            {new Arbitrary<Path<int,DateProperty>>() with
-                override x.Generator = (pathGen DateProperty.Year)
+            {new Arbitrary<Path>() with
+                override x.Generator = (pathGen 0)
                 override x.Shrinker path =
                     match path with
                     | Path.Go -> 
@@ -167,6 +166,5 @@ module Generators =
                         | _                         -> []
                     |> Seq.ofList
             }
-            // Arb.fromGen 
 
     

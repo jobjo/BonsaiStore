@@ -36,7 +36,7 @@ module DateReports =
         printfn "Memory %A" (Utils.getCurrentMemory())
 
         printfn "Build store"
-        let store : IStore<Date.Date> = SB.buildStore dates
+        let store : IStore<Date.Date> = SB.buildDefaultStore dates
         printfn "Memory %A" (Utils.getCurrentMemory())
 
         printfn "Run benchmarks"
