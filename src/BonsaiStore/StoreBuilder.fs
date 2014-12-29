@@ -3,13 +3,32 @@ module StoreBuilder =
 
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Linq.QuotationEvaluation
-
+    open FSharp.Collections.RangeMap
+    
     module T = FSharp.BonsaiStore.Internal.Tree
     module F = FSharp.BonsaiStore.Internal.Filter
     module Q = FSharp.BonsaiStore.Quatations
 
+    /// Build configuration.
+    type BuildStoreConfiguration =
+        {
+            /// If set to true, cache all leaf nodes at each level.
+            /// This may speed up reporting but increases memory footprint.
+            UseCaching : bool
+        }
+        static member Default = {UseCaching = false}
+
+    /// Create tree configuration
+    let private buildTreeConf conf =
+        let df = T.defaultBuildTreeConfiguration
+        { new T.IBuildTreeConfiguration with 
+            member this.CacheElements() = conf.UseCaching
+            member this.BuildMap<'K,'V when 'K : comparison> xs : IRangeMap<'K,'V> = 
+                df.BuildMap xs
+        }
+    
     /// Builds a store
-    let buildStore<'T> (items: seq<'T>) : IStore<'T> =
+    let buildStore<'T> (conf: BuildStoreConfiguration) (items: seq<'T>) : IStore<'T> =
 
         // Find indexes from type.
         let indexes = Q.extractIndexes<'T>()
@@ -28,17 +47,17 @@ module StoreBuilder =
             Q.buildFilterGenerator<'T> (List.map snd indexes) exp
 
         // Build the store
-        let tree = T.buildTree T.defaultBuildTreeConfiguration levels items
+        let tree = T.buildTree (buildTreeConf conf) levels items
 
         // Report function
         let report (filterExp: Expr<'T -> bool>) =
             let filterFun = Q.compileQuatationFilter filterExp
             let filter = toFilter filterExp
             fun (mr: MapReducer<'T,'R>) ->
-                let map =
-                    Array.Parallel.choose (fun x ->
-                        if filterFun x then Some (mr.Map x) else None
-                    )
-                    >> mr.Reduce
+                let map x = if filterFun x then (mr.Map x) else mr.Empty
                 F.report mr.Empty map mr.Reduce filter tree
         { new IStore<'T> with member this.Report exp mr = report exp mr }
+
+    /// Builds a store
+    let buildDefaultStore<'T> (items: seq<'T>) : IStore<'T> =
+        buildStore BuildStoreConfiguration.Default items

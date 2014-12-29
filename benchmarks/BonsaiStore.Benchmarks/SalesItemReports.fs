@@ -28,19 +28,28 @@ module SalesItemsReports =
 
     /// Count items
     let totalSalesBenchMark () =
-        let numItems = int 1e6
+        let numItems = int 1e5
 
         printfn "Generate %A sales items" numItems
-        let items = generateSalesItems numItems
-        printfn "Memory %A" (Utils.getCurrentMemory())
+        let items, m = U.memory <| fun () ->
+            generateSalesItems numItems
+        printfn "Size of items array: %A" m
 
-        printfn "Build store"
-        let store = SB.buildStore items
-        printfn "Memory %A" (Utils.getCurrentMemory())
+        printfn "Build Store"
+        let store, m  = U.memory <| fun _ -> 
+            SB.buildDefaultStore items
+        printfn "Size of store %A" m
+
+        printfn "Build Cached Store"
+        let storeC, m = U.memory <| fun _ ->
+                let conf = {SB.BuildStoreConfiguration.Default with UseCaching = true}
+                SB.buildStore conf items
+        printfn "Size of cached store %A" m
 
         printfn "Build Array Store"
-        let storeA = ArrayStore.buildStore items
-        printfn "Memory %A" (Utils.getCurrentMemory())
+        let storeA , m = U.memory <| fun _ ->
+            ArrayStore.buildStore items
+        printfn "Size of array store %A" m
 
         let oneDayFilter = 
             <@ 
@@ -58,25 +67,39 @@ module SalesItemsReports =
         let allTrue = 
             <@ fun (si: SalesItem) ->  true @>
 
+        
+//        let r1 = salesPerEmployeeStoreMapReduce storeA oneDayFilter
+//        let r2 = salesPerEmployeeStoreMapReduce store oneDayFilter
+//        let r3 = salesPerEmployeeStoreMapReduce storeC oneDayFilter
+//
+//        printfn "========================="
+//        T.showTable r1
+//        printfn "========================="
+//        T.showTable r2
+//        printfn "========================="
+//        T.showTable r3
+        
         let totalSales filter =
             [
-                "Store", Utils.testCase <| fun _ -> totSalesStoreMapReduce store filter
-                "Array", Utils.testCase <| fun _ -> totSalesStoreMapReduce storeA filter
+                "Store", Utils.testCase <| fun _    -> totSalesStoreMapReduce store filter
+                "Cached", Utils.testCase <| fun _   -> totSalesStoreMapReduce storeC filter
+                "Array", Utils.testCase <| fun _    -> totSalesStoreMapReduce storeA filter
             ]
 
         let salesPerEmployee filter =
             [
                 "Store", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce store filter
+                "Cached", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce storeC filter
                 "Array", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce storeA filter
             ]
         [
-//            "Total Sales One Day", totalSales oneDayFilter
-//            "Total Sales One Month", totalSales oneMonthFilter
-//            "Total Sales One Year", totalSales oneYearFilter
-//            "Total Sales All Periods", totalSales allTrue
-            "Sales Per Employee - One Day", salesPerEmployee oneDayFilter
-            "Sales Per Employee - One Month", salesPerEmployee oneMonthFilter
-            "Sales Per Employee - One Year", salesPerEmployee oneYearFilter
-            "Sales Per Employee - All Periods", salesPerEmployee allTrue
+            "Total Sales One Day", totalSales oneDayFilter
+            "Total Sales One Month", totalSales oneMonthFilter
+            "Total Sales One Year", totalSales oneYearFilter
+            "Total Sales All Periods", totalSales allTrue
+//            "Sales Per Employee - One Day", salesPerEmployee oneDayFilter
+//            "Sales Per Employee - One Month", salesPerEmployee oneMonthFilter
+//            "Sales Per Employee - One Year", salesPerEmployee oneYearFilter
+//            "Sales Per Employee - All Periods", salesPerEmployee allTrue
         ]
-        |> Utils.benchmark 10
+        |> Utils.benchmark 50

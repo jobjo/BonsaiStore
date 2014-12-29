@@ -6,38 +6,45 @@ module Tree =
     module P = Utils.Printer
     let private (!<) = P.(!<)
 
+    type Level = int
+    type Key = int
+
     /// A node has a level attribute and a map to child nodes.
-    type Node<'K, 'L,'T> =
+    type Node<'T> =
         {
             /// Filter type
-            Level : 'L
+            Level : Level
+
+            /// Ability to cache elements
+            AllElements : option<'T []>
 
             /// Child nodes
-            Children : IRangeMap<'K, Tree<'K,'L,'T>>
+            Children : IRangeMap<Key, Tree<'T>>
         }
 
     /// A Tree is either a node or a leaf.
-    and Tree<'K,'L,'T> =
-        | Node of Node<'K,'L,'T>
-        | Leaf of 'T
+    and Tree<'T> =
+        | Node of Node<'T>
+        | Leaf of 'T []
 
     /// Functor instance for tree.
     let rec map f = function
         | Node n -> 
             Node {
                 Level = n.Level
+                AllElements = Option.map (Array.map f) n.AllElements
                 Children =  n.Children.Map (fun t -> map f t) 
             }
         | Leaf x    -> 
-            Leaf <| f x
+            Leaf <| Array.map f x
 
     /// Pretty prints a tree.
-    let showTree<'K, 'L,'T when 'K : comparison> =
-        let rec go (tree: Tree<'K, 'L,'T>) =
+    let showTree<'T> =
+        let rec go (tree: Tree<'T>) =
             match tree with
-            | Leaf (x: 'T)    ->
-                P.print (string (box x))
-            | Node (node: Node<'K, 'L,'T>) ->
+            | Leaf (x: 'T [])    ->
+                P.print <| sprintf "Num[%A]" (Array.length x)
+            | Node (node: Node<'T>) ->
                 !< [
                     yield P.print (sprintf "[%s]" <| node.Level.ToString())
                     for (k,v) in node.Children.Elements() do
@@ -46,13 +53,15 @@ module Tree =
                 ]
         go >> P.run
 
-    /// Configurations for building a tree.    
+    /// Configurations for building a tree.
     type IBuildTreeConfiguration =
+        abstract CacheElements : unit -> bool
         abstract BuildMap<'K,'V when 'K : comparison> : seq<'K * 'V> -> IRangeMap<'K,'V>
 
     /// Default tree configuration.
     let defaultBuildTreeConfiguration =
         { new IBuildTreeConfiguration with 
+            member this.CacheElements() = false
             member this.BuildMap<'K,'V when 'K : comparison> xs : IRangeMap<'K,'V> = 
                 RangeMap.fromSeq xs }
 
@@ -70,14 +79,30 @@ module Tree =
                         code, go (Array.ofSeq deals) fts
                     )
                     |> conf.BuildMap
-                Tree.Node {Level = level; Children = children}
+                Tree.Node {
+                    Level = level
+                    AllElements = if conf.CacheElements() then Some items else None
+                    Children = children
+                }
         go (Array.ofSeq elements) levels
 
     /// Extract all elements from a tree.
-    let elements (tree: Tree<'K,'L,'T>) =
-        let rec go = function
-            | Tree.Leaf x   ->
-                [|x|]
-            | Tree.Node n   -> 
-                Array.collect (snd >> go) <| n.Children.Elements()
-        go tree
+    let elements (tree: Tree<'T>) : 'T [] =
+        match tree with
+        | Leaf (xs: 'T []) -> 
+            xs
+        | Node n ->
+            // Check if elements are accumulated.
+            match n.AllElements with
+            | Some xs   ->
+                xs
+            | None      ->
+                // Collect all elements
+                let rec go = function
+                    | Tree.Leaf xs   ->
+                        xs
+                    | Tree.Node n   -> 
+                        Array.collect (snd >> go) <| n.Children.Elements()
+                go tree
+
+

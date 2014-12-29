@@ -13,7 +13,7 @@ module Program =
         printfn "Generating items"
         let salesItems = SalesItemGenerator.randomSalesItems (int 1e3)
         printfn "Building the store"
-        let store = SB.buildStore<SalesItem> salesItems
+        let store = SB.buildDefaultStore<SalesItem> salesItems
         printfn "Done building the item store"
         store
 

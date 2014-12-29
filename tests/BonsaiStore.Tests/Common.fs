@@ -8,24 +8,14 @@ module Common =
     /// Simple date type
     type Date = int * int * int
 
-    /// Level
-    type DateProperty =
-        | Year
-        | Month
-        | Day
-        override this.ToString() =
-            match this with
-            | Year  -> "Year"
-            | Month -> "Month"
-            | Day   -> "Day"
 
     /// Build a tranche tree.
     let buildDateTree xs =
         let levels  =
             [
-                Year, fun (y,_,_) -> y
-                Month, fun (_,m,_) -> m
-                Day, fun (_,_,d) -> d
+                0, fun (y,_,_) -> y
+                1, fun (_,m,_) -> m
+                2, fun (_,_,d) -> d
             ]
         let conf = T.defaultBuildTreeConfiguration
         T.buildTree conf levels xs
@@ -41,24 +31,23 @@ module Common =
         |> buildDateTree
 
     /// Property helpers
-    let year x = equal Year x
-    let month x = equal Month x
-    let day x = equal Day x
+    let year x = equal 0 x
+    let month x = equal 1 x
+    let day x = equal 2 x
 
     /// Predicate builder
     let toPredicate x =
         let f =
             toPredicate <| fun ft  (y,m,d) ->
                 match ft with
-                | Year  -> y
-                | Month -> m
-                | Day   -> d
+                | 0 -> y
+                | 1 -> m
+                | _ -> d
         f x
 
 
     /// Filter by 
     let filterByPredicate f =
         T.elements
-        >> Array.concat  
         >> Array.filter (toPredicate f)
         >> Array.sort

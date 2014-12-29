@@ -82,9 +82,14 @@ module Path =
         es1 == es2
 
     [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
-    let ``Join paths with and`` p1 p2 =
+    let ``Join paths with and`` (p1: Path) (p2: Path) =
+        printfn "A"
         let tree = genDatesTree ()
+        printfn "B"
         let path = p1 <&> p2
+        printfn "C"
         let es1 = findSet path tree
+        printfn "D"
         let es2 = Set.intersect (findSet p1 tree)  (findSet p2 tree)
+        printfn "E"
         es1 == es2

@@ -26,21 +26,21 @@ module SalesItems =
         member private this.PersonNameIx() = 
             abs (this.Employee.Name.GetHashCode()) % 5
 
-//        [<Index>]
-//        member private this.CategoryIx() = 
-//            this.Product.Category.ToString().GetHashCode()
-//
+        [<Index>]
+        member private this.CategoryIx() = 
+            this.Product.Category.ToString().GetHashCode()
+
 //        [<Index>]
 //        member private this.TeamIx() = 
 //            abs (this.Employee.Team.GetHashCode()) % 5
 //
-        [<Index>]
-        member private this.QuantityIx() = 
-            this.Quantity % 10
+//        [<Index>]
+//        member private this.QuantityIx() = 
+//            this.Quantity % 10
 //
-        [<Index>]
-        member private this.EmployeedIdIx() = 
-            this.Employee.EmployeeId % 10
+//        [<Index>]
+//        member private this.EmployeedIdIx() = 
+//            this.Employee.EmployeeId % 10
     
     let generateSalesItems n =
         let r = new Random()

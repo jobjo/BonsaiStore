@@ -17,6 +17,12 @@ module Utils =
         let mem = System.GC.GetTotalMemory(true)
         System.Math.Round((float mem) / (System.Math.Pow(2.,20.)), 1)
 
+    let memory f =
+        let m1 = getCurrentMemory()
+        let r = f ()
+        let m2 = getCurrentMemory()
+        r, m2 - m1
+
     let rec repeate n f = if n <= 0 then () else f () ; repeate (n-1) f
     let testCase f () = ignore <| f ()
     type Sample =
