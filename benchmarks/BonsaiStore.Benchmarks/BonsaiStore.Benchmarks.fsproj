@@ -82,6 +82,7 @@
     <Compile Include="Date.fs" />
     <Compile Include="SalesItems.fs" />
     <Compile Include="DateReports.fs" />
+    <Compile Include="ArrayStore.fs" />
     <Compile Include="SalesItemReports.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>

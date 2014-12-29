@@ -7,12 +7,13 @@ module Filters =
     open FSharp.BonsaiStore.Internal.Filter
     module F = FSharp.BonsaiStore.Internal.Filter
 
+    let find path tree = F.report [||] (fun x -> [|x|]) (Seq.toArray >> Array.concat) path tree
 
     let private filterByPredicateSet f tree =
         filterByPredicate f tree |> Set.ofArray
 
     let private findSet f tree =
-        F.find f tree |> Array.concat |> Set.ofSeq
+        find f tree |> Array.concat |> Set.ofSeq
 
     let compareSets f s1 s2 =
         if s1 <> s2 then

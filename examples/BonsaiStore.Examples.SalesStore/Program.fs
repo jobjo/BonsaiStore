@@ -4,6 +4,7 @@ module Program =
 
     open SalesItem
     module SB = FSharp.BonsaiStore.StoreBuilder
+    module R = FSharp.BonsaiStore.Reporting
     module T = Table
     open FSharp.BonsaiStore
 
@@ -17,8 +18,8 @@ module Program =
         store
 
     /// Top team report.
-    let topTeams (salesStore: IBonsaiStore<SalesItem>) filter =
-        SB.report
+    let topTeams (salesStore: IStore<SalesItem>) filter =
+        R.report
             salesStore
             filter
             T.empty
@@ -26,8 +27,8 @@ module Program =
             T.merge
     
     /// Count elements
-    let totalNumSales (salesStore: IBonsaiStore<SalesItem>) filter =
-        SB.report
+    let totalNumSales (salesStore: IStore<SalesItem>) filter =
+        R.report
             salesStore
             filter
             0

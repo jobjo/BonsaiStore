@@ -21,8 +21,5 @@ module Interfaces =
         }
 
     /// Interface for reporting
-    type IBonsaiStore<'T> =
+    type IStore<'T> =
         abstract Report<'R> : Expr<'T -> bool> -> MapReducer<'T,'R> -> 'R
-        abstract ReportParallel<'R> : Expr<'T -> bool> -> MapReducer<'T,'R> -> 'R
-        abstract Filter<'T> : Expr<'T -> bool> -> seq<'T>
-        abstract Add : 'T -> IBonsaiStore<'T>

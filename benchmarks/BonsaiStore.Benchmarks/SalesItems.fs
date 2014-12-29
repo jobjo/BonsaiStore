@@ -14,16 +14,33 @@ module SalesItems =
             Date : System.DateTime
             Employee : Employee 
         }
-        [<Index; Level(0)>]
+        [<Index>]
         member private this.DateIx() = 
             let span = this.Date - DateTime(1900,1,1)
             span.Days / 100
 
-//        [<Index; Level(1)>]
-//        member private this.PriceIx() = int (this.Price / 100.)
+        [<Index>]
+        member private this.PriceIx() = int (this.Price / 300.)
+
+        [<Index>]
+        member private this.PersonNameIx() = 
+            abs (this.Employee.Name.GetHashCode()) % 5
+
+//        [<Index>]
+//        member private this.CategoryIx() = 
+//            this.Product.Category.ToString().GetHashCode()
 //
-//        [<Index; Level(2)>]
-//        member private this.PersonNameIx() = this.Employee.Name.GetHashCode()
+//        [<Index>]
+//        member private this.TeamIx() = 
+//            abs (this.Employee.Team.GetHashCode()) % 5
+//
+        [<Index>]
+        member private this.QuantityIx() = 
+            this.Quantity % 10
+//
+        [<Index>]
+        member private this.EmployeedIdIx() = 
+            this.Employee.EmployeeId % 10
     
     let generateSalesItems n =
         let r = new Random()

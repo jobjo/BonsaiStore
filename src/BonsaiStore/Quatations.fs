@@ -40,15 +40,15 @@ module Quatations =
     let private generateIndexMapper level exp =
 
 
-        printfn "======================="
-        printfn "Exp:"
-        printfn "%A" exp
+        // printfn "======================="
+        // printfn "Exp:"
+        // printfn "%A" exp
 
         let exp = EU.normalize exp
 
-        printfn "======================="
-        printfn "Normalized Exp:"
-        printfn "%A" exp
+        // printfn "======================="
+        // printfn "Normalized Exp:"
+        // printfn "%A" exp
 
         // Extracts the longest GET property sub expression involving the formal
         // parameter.
@@ -96,16 +96,16 @@ module Quatations =
             | _                 -> 
                 failwith "Exp1 is not a lambda"
 
-        printfn "Property:"
-        printfn "%A" property
-        printfn "Index Expression:"
-        printfn "%A" toIndexExp
-        printfn "==================="
+        // printfn "Property:"
+        // printfn "%A" property
+        // printfn "Index Expression:"
+        // printfn "%A" toIndexExp
+        // printfn "==================="
 
         // Compiled index mapper function.
         let toIndex (x: obj) =
             let tp = x.GetType()
-            printfn "Type: [%A]" tp
+            // printfn "Type: [%A]" tp
             let arg =
                 if tp = typeof<float> then
                     <@@ (x :?> float) @@>
@@ -126,9 +126,9 @@ module Quatations =
         // Map expression to index expression.
         let matchExp exp =
             let nExp = EU.normalize exp
-            printfn "nExp: [%A]" nExp
-            printfn "property: [%A]" property
-            printfn "Equals: %A" (string nExp = string property)
+            // printfn "nExp: [%A]" nExp
+            // printfn "property: [%A]" property
+            // printfn "Equals: %A" (string nExp = string property)
 
             if string nExp = string property then
                 Some {Level = level; ToIndex =  toIndex}
@@ -154,13 +154,13 @@ module Quatations =
                         | BinOp.LET -> BinOp.GET
                     binOp op [e2; e1]
                 | Some index, _                         ->
-                    printfn "Found matching index"
-                    printfn "e1: [%A]" e1
-                    printfn "e2: [%A]" e2
+                    // printfn "Found matching index"
+                    // printfn "e1: [%A]" e1
+                    // printfn "e2: [%A]" e2
                     let obj = e2.CompileUntyped()()
-                    printfn "Object: %A" obj
+                    // printfn "Object: %A" obj
                     let ix = index.ToIndex obj
-                    printfn "Index: [%A]" ix
+                    // printfn "Index: [%A]" ix
                     Some <| Property(index.Level,op,ix)
 
 

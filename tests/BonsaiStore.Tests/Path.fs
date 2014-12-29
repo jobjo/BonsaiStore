@@ -19,6 +19,9 @@ module Path =
         |> Seq.truncate 100
         |> List.ofSeq    
 
+    let find path tree = 
+        report [||] (fun x -> [|x|]) (Seq.toArray >> Array.concat) path tree
+
     let private genDatesTree () =
         let dates = genDates ()
         buildDateTree dates

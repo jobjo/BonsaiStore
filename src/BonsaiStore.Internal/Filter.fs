@@ -223,14 +223,10 @@ module Filter =
         | Or (f1,f2)                ->
             joinOr [ toPath f1 ; toPath f2]
 
-    /// Finds all elements from a tree matching the filter.
-    let find f t = find (toPath f) t
-
     /// Given a identity, a mapper and reducer function traverses the
-    let mapReduce mzero map reduce  f tree =
-        mapReduce mzero map reduce (toPath f) tree
-
-    /// Given a identity, a mapper and reducer function traverses the
-    let mapReduceParallel mzero map reduce  f tree =
-        mapReduceParallel mzero map reduce (toPath f) tree
+    let report mzero map reduce  f tree =
+//        printfn "============================="
+//        printfn "%s" (showFilter f)
+//        printfn "%s" <| showPath (toPath f)
+        report mzero map reduce (toPath f) tree
 

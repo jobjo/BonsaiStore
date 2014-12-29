@@ -1,6 +1,15 @@
 ﻿namespace FSharp.BonsaiStore.Internal
 
 module Utils =
+    module Time =
+        let time f =
+            let sw = new System.Diagnostics.Stopwatch()
+            sw.Start();
+            let x = f ()
+            sw.Stop();
+            let ts = sw.Elapsed;
+            x,  ts.TotalMilliseconds
+
     module Printer =
 
         /// A printer is a function from an indentation level to a list of strings.

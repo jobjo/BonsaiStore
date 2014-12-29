@@ -8,60 +8,23 @@ module SalesItemsReports =
     open SalesItems
 
     module SB = FSharp.BonsaiStore.StoreBuilder
+    module R = FSharp.BonsaiStore.Reporting
     module U = FSharp.BonsaiStore.Benchmarks.Utils
     module T = Table
 
-    let toPredicate (exp: Expr<SalesItem -> bool>) = exp.Compile() ()
+    /// Count using map reduce
+    let totSalesStoreMapReduce(store: IStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
+        R.report store filter 0. (fun si -> si.Price) Array.sum<float>
 
     /// Count using map reduce
-    let totSalesStoreMapReduceGen report (store: IBonsaiStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
-        report store filter 0. (fun si -> si.Price) Array.sum<float>
-
-    /// Count using map reduce
-    let totSalesStoreMapReduce store = totSalesStoreMapReduceGen SB.report store
-
-    /// Count using map reduce
-    let totSalesStoreMapReduceParallel store = totSalesStoreMapReduceGen SB.reportParallel store
-
-    /// Count using map reduce
-    let totSalesStoreArray (items: SalesItem []) (filter: Expr<SalesItem-> bool>) =
-        let pred = toPredicate filter
-        (0., items)
-        ||> Array.fold (fun c si ->
-            si.Price + if pred si then si.Price else 0.
-        )
-
-    /// Count using map reduce
-    let salesPerEmployeeStoreMapReduceGen   report
-                                            (store: IBonsaiStore<SalesItem>) 
-                                            (filter: Expr<SalesItem-> bool>) =
-        report
-            store 
-            filter 
-            T.empty  
+    let salesPerEmployeeStoreMapReduce (store: IStore<SalesItem>) 
+                                       (filter: Expr<SalesItem-> bool>) =
+        R.report
+            store
+            filter
+            T.empty
             (fun si -> T.single si.Employee.EmployeeId si.Price) 
             (T.mergeWith (+))
-    
-    /// Count using map reduce
-    let salesPerEmployeeStoreMapReduce store =
-        salesPerEmployeeStoreMapReduceGen SB.report store
-
-    /// Count using map reduce
-    let salesPerEmployeeStoreMapReduceParrallel store =
-        salesPerEmployeeStoreMapReduceGen SB.reportParallel store
-
-    /// Count using map reduce
-    let salesPerEmployeArray    (items: SalesItem []) 
-                                (filter: Expr<SalesItem-> bool>) =
-        let pred = toPredicate filter
-        items
-        |> Array.choose (fun si ->
-            if pred si then
-                Some <| T.single si.Employee.EmployeeId si.Price
-            else
-                None
-        )
-        |> (T.mergeWith (+))
 
     /// Count items
     let totalSalesBenchMark () =
@@ -75,7 +38,14 @@ module SalesItemsReports =
         let store = SB.buildStore items
         printfn "Memory %A" (Utils.getCurrentMemory())
 
-        let oneDayFilter = <@ fun (si: SalesItem) -> si.Date = new DateTime(2010,12,25) @>
+        printfn "Build Array Store"
+        let storeA = ArrayStore.buildStore items
+        printfn "Memory %A" (Utils.getCurrentMemory())
+
+        let oneDayFilter = 
+            <@ 
+                fun (si: SalesItem) -> (si.Date = new DateTime(2010,1,1) )
+            @>
         let oneMonthFilter =
             <@ fun (si: SalesItem) -> 
                 si.Date >= new DateTime(2010,1,1) && si.Date <= new DateTime(2010,2,1) 
@@ -91,15 +61,13 @@ module SalesItemsReports =
         let totalSales filter =
             [
                 "Store", Utils.testCase <| fun _ -> totSalesStoreMapReduce store filter
-                "Store (P)", Utils.testCase <| fun _ -> totSalesStoreMapReduceParallel store filter
-                "Array", Utils.testCase <| fun _ -> totSalesStoreArray items filter
+                "Array", Utils.testCase <| fun _ -> totSalesStoreMapReduce storeA filter
             ]
 
         let salesPerEmployee filter =
             [
                 "Store", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce store filter
-                "Store (P)", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduceParrallel store filter
-                "Array", Utils.testCase <| fun _ -> salesPerEmployeArray items filter
+                "Array", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce storeA filter
             ]
         [
 //            "Total Sales One Day", totalSales oneDayFilter
@@ -110,7 +78,5 @@ module SalesItemsReports =
             "Sales Per Employee - One Month", salesPerEmployee oneMonthFilter
             "Sales Per Employee - One Year", salesPerEmployee oneYearFilter
             "Sales Per Employee - All Periods", salesPerEmployee allTrue
-
-
         ]
-        |> Utils.benchmark 2
+        |> Utils.benchmark 10
