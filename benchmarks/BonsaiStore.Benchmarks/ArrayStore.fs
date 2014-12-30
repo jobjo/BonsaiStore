@@ -13,4 +13,7 @@ module ArrayStore =
             )
             |> reduce
         { new IStore<'T> with
-            member this.Report filter map reduce = report filter map reduce }
+            member this.Report filter map reduce = report filter map reduce 
+            member this.Filter f = failwith ""
+            member this.Insert xs = failwith ""
+        }
