@@ -53,10 +53,12 @@ module StoreBuilder =
         let report (filterExp: Expr<'T -> bool>) =
             let filterFun = Q.compileQuatationFilter filterExp
             let filter = toFilter filterExp
-            fun (mr: MapReducer<'T,'R>) ->
-                let map x = if filterFun x then (mr.Map x) else mr.Empty
-                F.report mr.Empty map mr.Reduce filter tree
-        { new IStore<'T> with member this.Report exp mr = report exp mr }
+            fun (map: 'T -> 'R) (reduce: 'R [] -> 'R) ->
+                let empty = reduce [||]
+                let map x = if filterFun x then map x else empty
+                F.report tree filter map reduce
+        { new IStore<'T> 
+            with member this.Report filter map reduce = report filter map reduce }
 
     /// Builds a store
     let buildDefaultStore<'T> (items: seq<'T>) : IStore<'T> =

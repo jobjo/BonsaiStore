@@ -2,16 +2,15 @@
 module ArrayStore =
     open FSharp.BonsaiStore
     let buildStore items =
-        let report choose filter (mr: MapReducer<_,_>) =
+        let report filter map reduce =
             let pred = Quatations.compileQuatationFilter filter
             items
-            |> choose (fun x ->
+            |> Array.Parallel.choose (fun x ->
                 if pred x then 
-                    Some (mr.Map x)
+                    Some (map x)
                 else 
                     None
             )
-            |> mr.Reduce
+            |> reduce
         { new IStore<'T> with
-            member this.Report exp mr = report Array.choose exp mr
-        }
+            member this.Report filter map reduce = report filter map reduce }

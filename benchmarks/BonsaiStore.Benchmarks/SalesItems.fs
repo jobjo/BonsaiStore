@@ -14,19 +14,20 @@ module SalesItems =
             Date : System.DateTime
             Employee : Employee 
         }
-        [<Index>]
+        [<Index; Level(0)>]
         member private this.DateIx() = 
             let span = this.Date - DateTime(1900,1,1)
             span.Days / 100
 
-        [<Index>]
-        member private this.PriceIx() = int (this.Price / 300.)
+        [<Index; Level(1)>]
+        member private this.PriceIx() = 
+            int (this.Price / 300.)
 
-        [<Index>]
+        [<Index; Level(2)>]
         member private this.PersonNameIx() = 
-            abs (this.Employee.Name.GetHashCode()) % 5
+            this.Employee.Name.GetHashCode() % 100
 
-        [<Index>]
+        [<Index; Level(3)>]
         member private this.CategoryIx() = 
             this.Product.Category.ToString().GetHashCode()
 

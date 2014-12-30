@@ -75,12 +75,12 @@ module Path =
         printPath >> P.run
 
     let report<'K,'FT,'T, 'R when 'K : comparison and 'FT : comparison>
-                    (empty: 'R) 
+                    (tree: Tree<'T>)
+                    (path: Path)
                     (map: 'T -> 'R) 
                     (reduce: 'R [] -> 'R)
-                    (path: Path)
-                    (tree: Tree<'T>) : 'R =
-
+                     : 'R =
+        let empty = reduce [||]
         let rec go path tree =
             match path with
             | Go        ->

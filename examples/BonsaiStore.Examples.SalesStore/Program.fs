@@ -22,7 +22,6 @@ module Program =
         R.report
             salesStore
             filter
-            T.empty
             (fun item -> T.fromSeq [item.Person.Team, float item.Quantity * item.Price]) 
             T.merge
     
@@ -31,9 +30,8 @@ module Program =
         R.report
             salesStore
             filter
-            0
             (fun _ -> 1)
-            Seq.sum
+            Array.sum
 
     [<EntryPoint>]
     let main argv = 

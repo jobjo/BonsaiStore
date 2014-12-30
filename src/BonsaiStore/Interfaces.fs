@@ -12,14 +12,6 @@ module Interfaces =
         inherit System.Attribute()
         member this.Level = l
 
-    /// Identity, map and reduce wrapper.
-    type MapReducer<'T,'R> =
-        {
-            Empty : 'R
-            Map : 'T -> 'R
-            Reduce : 'R []  -> 'R
-        }
-
     /// Interface for reporting
     type IStore<'T> =
-        abstract Report<'R> : Expr<'T -> bool> -> MapReducer<'T,'R> -> 'R
+        abstract Report<'R> : Expr<'T -> bool> -> ('T -> 'R) -> ('R [] -> 'R) -> 'R

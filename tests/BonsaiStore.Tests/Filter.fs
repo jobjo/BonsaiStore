@@ -7,7 +7,8 @@ module Filters =
     open FSharp.BonsaiStore.Internal.Filter
     module F = FSharp.BonsaiStore.Internal.Filter
 
-    let find path tree = F.report [||] (fun x -> [|x|]) (Seq.toArray >> Array.concat) path tree
+    let find path tree = 
+        F.report tree path (fun x -> [|x|]) Array.concat
 
     let private filterByPredicateSet f tree =
         filterByPredicate f tree |> Set.ofArray

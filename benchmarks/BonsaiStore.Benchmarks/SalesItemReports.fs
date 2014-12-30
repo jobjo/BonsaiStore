@@ -1,10 +1,8 @@
 ﻿namespace FSharp.BonsaiStore.Benchmarks
 module SalesItemsReports =
     open System
-    open Microsoft.FSharp.Quotations
     open FSharp.BonsaiStore
     open Microsoft.FSharp.Quotations
-    open Microsoft.FSharp.Linq.QuotationEvaluation
     open SalesItems
 
     module SB = FSharp.BonsaiStore.StoreBuilder
@@ -14,7 +12,7 @@ module SalesItemsReports =
 
     /// Count using map reduce
     let totSalesStoreMapReduce(store: IStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
-        R.report store filter 0. (fun si -> si.Price) Array.sum<float>
+        R.report store filter (fun si -> si.Price) Array.sum<float>
 
     /// Count using map reduce
     let salesPerEmployeeStoreMapReduce (store: IStore<SalesItem>) 
@@ -22,13 +20,12 @@ module SalesItemsReports =
         R.report
             store
             filter
-            T.empty
             (fun si -> T.single si.Employee.EmployeeId si.Price) 
             (T.mergeWith (+))
 
     /// Count items
     let totalSalesBenchMark () =
-        let numItems = int 1e5
+        let numItems = int 1e6
 
         printfn "Generate %A sales items" numItems
         let items, m = U.memory <| fun () ->
@@ -53,15 +50,19 @@ module SalesItemsReports =
 
         let oneDayFilter = 
             <@ 
-                fun (si: SalesItem) -> (si.Date = new DateTime(2010,1,1) )
+                fun (si: SalesItem) -> 
+                    (si.Date = new DateTime(2010,1,1) )
+                    && si.Price > 100. && si.Price < 200.
             @>
         let oneMonthFilter =
             <@ fun (si: SalesItem) -> 
                 si.Date >= new DateTime(2010,1,1) && si.Date <= new DateTime(2010,2,1) 
+                && si.Price > 100. && si.Price < 200.
             @>
         let oneYearFilter = 
             <@ fun (si: SalesItem) -> 
                 si.Date >= new DateTime(2010,1,1) && si.Date <= new DateTime(2011,1,1) 
+                && si.Price > 100. && si.Price < 200.
             @>
 
         let allTrue = 

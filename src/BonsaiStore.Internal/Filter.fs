@@ -223,11 +223,10 @@ module Filter =
             joinOr [ toPath f1 ; toPath f2]
 
     /// Given a identity, a mapper and reducer function traverses the
-    let report  (mzero: 'R) 
-                (map: 'T -> 'R) 
-                (reduce: 'R [] -> 'R) 
+    let report  (tree: Tree<'T>) 
                 (f: Filter) 
-                (tree: Tree<'T>) 
+                (map: 'T -> 'R) 
+                (reduce: 'R [] -> 'R)
                 : 'R =
-        report mzero map reduce (toPath f) tree
+        report tree (toPath f) map reduce 
 

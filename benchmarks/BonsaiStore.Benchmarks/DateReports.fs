@@ -15,7 +15,7 @@ module DateReports =
 
     /// Count using map reduce
     let countStoreMapReduce (store: IStore<Date>) (filter: Expr<Date -> bool>) =
-        R.report store filter 0  (fun _ -> 1) Array.length
+        R.report store filter (fun _ -> 1) Array.length
 
 
     /// Count number of elements folding an array.
