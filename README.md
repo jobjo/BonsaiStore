@@ -165,8 +165,5 @@ let topTeamsRes =
         item.Date.Year = 2011  && item.Date.Month = 7 @>
 ```
 
-##  A note on implementation ###
-The foundation of *Bonsai Store* is a prefix-tree data structure, where each level of the tree splits the items based on a particular property (index.) In the example above the hierarchies include *product*, *years* and *months*. When querying the underlying *tree* with a filter looking at for example a particular *product* in a given *year*, only a subset of the children are considered at each level. This allows a large set of items to be discarded at once (improving on linear complexity). Each node of the tree also allow efficient filtering based on ranges, for instance filtering out items with prices below a certain threshold).
-
 ## Next steps
 The current interface support the construction of immutable data-stores. A service interfaces for propagating changes between multiple clients will be introduced.
