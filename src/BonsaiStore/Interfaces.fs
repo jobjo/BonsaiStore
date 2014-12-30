@@ -14,4 +14,14 @@ module Interfaces =
 
     /// Interface for reporting
     type IStore<'T> =
-        abstract Report<'R> : Expr<'T -> bool> -> ('T -> 'R) -> ('R [] -> 'R) -> 'R
+        /// Report using filter map and reduce.
+        abstract Report : Expr<'T -> bool> -> ('T -> 'R) -> ('R [] -> 'R) -> 'R
+
+        /// Inserts a sequence of elements to a store.
+        abstract Insert : (seq<'T>) -> IStore<'T>
+
+        /// Filters the elements of the store.
+        abstract Filter : ('T -> bool) -> IStore<'T>
+
+        
+        

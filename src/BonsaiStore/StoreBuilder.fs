@@ -26,10 +26,10 @@ module StoreBuilder =
             member this.BuildMap<'K,'V when 'K : comparison> xs : IRangeMap<'K,'V> = 
                 df.BuildMap xs
         }
-    
+
     /// Builds a store
     let buildStore<'T> (conf: BuildStoreConfiguration) (items: seq<'T>) : IStore<'T> =
-
+        let treeConf = buildTreeConf conf
         // Find indexes from type.
         let indexes = Q.extractIndexes<'T>()
 
@@ -46,19 +46,31 @@ module StoreBuilder =
         let toFilter (exp: Expr<'T -> bool>) = 
             Q.buildFilterGenerator<'T> (List.map snd indexes) exp
 
-        // Build the store
-        let tree = T.buildTree (buildTreeConf conf) levels items
+        // Builds a store given an initial seed.
+        let rec build tree =
 
-        // Report function
-        let report (filterExp: Expr<'T -> bool>) =
-            let filterFun = Q.compileQuatationFilter filterExp
-            let filter = toFilter filterExp
-            fun (map: 'T -> 'R) (reduce: 'R [] -> 'R) ->
-                let empty = reduce [||]
-                let map x = if filterFun x then map x else empty
-                F.report tree filter map reduce
-        { new IStore<'T> 
-            with member this.Report filter map reduce = report filter map reduce }
+            // Report function
+            let report (filterExp: Expr<'T -> bool>) =
+                let filterFun = Q.compileQuatationFilter filterExp
+                let filter = toFilter filterExp
+                fun (map: 'T -> 'R) (reduce: 'R [] -> 'R) ->
+                    let empty = reduce [||]
+                    let map x = if filterFun x then map x else empty
+                    F.report tree filter map reduce
+
+            // Insert a sequence of items.
+            let insert = T.insert treeConf levels tree >> build
+
+            // Filters the tree.
+            let filter pred = build <| T.filter pred tree 
+
+            { new IStore<'T> with
+                member this.Report filter map reduce = report filter map reduce 
+                member this.Insert items = insert items
+                member this.Filter pred = filter pred
+            }
+        // Build the store
+        build <| T.buildTree treeConf levels items
 
     /// Builds a store
     let buildDefaultStore<'T> (items: seq<'T>) : IStore<'T> =

@@ -4,9 +4,6 @@ module Path =
     open Tree
     module P = Utils.Printer
 
-    type Key = int
-    type Level = int
-
     /// Represents an instruction for selecting a set of branches.
     type BranchSelector =
         | Include of list<Key * Path>
@@ -74,12 +71,12 @@ module Path =
                 ]
         printPath >> P.run
 
-    let report<'K,'FT,'T, 'R when 'K : comparison and 'FT : comparison>
-                    (tree: Tree<'T>)
-                    (path: Path)
-                    (map: 'T -> 'R) 
-                    (reduce: 'R [] -> 'R)
-                     : 'R =
+    /// Report over a tree.
+    let report  (tree: Tree<'T>)
+                (path: Path) 
+                (map: 'T -> 'R) 
+                (reduce: 'R [] -> 'R) 
+                : 'R =
         let empty = reduce [||]
         let rec go path tree =
             match path with

@@ -114,6 +114,7 @@ Target "Clean" (fun _ ->
     [
         "src/BonsaiStore"
         "src/BonsaiStore.Internal"
+        "src/BonsaiStore.Service"
         "benchmarks/BonsaiStore.Benchmarks"
         "examples/BonsaiStore.Examples.SalesStore"
         "examples/BonsaiStore.Examples.SalesStore"

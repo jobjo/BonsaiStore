@@ -2,10 +2,11 @@
 
 module MapReduce =
     open FsCheck.Xunit
+    open Common
 
     module F = FSharp.BonsaiStore.Internal.Filter
     module T = FSharp.BonsaiStore.Internal.Tree
-    open Common
+    
 
     [<Property (Arbitrary = [| typeof<Generators.CustomGenerators> |])>]
     let ``Map-reduce same as filter, map and reduce`` (f: F.Filter) =

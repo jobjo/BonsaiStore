@@ -65,6 +65,8 @@ The `SalesItem` type represents an sales event and contains some basic informati
 
 The type is also enhanced with some private methods annotated with an `Index` attribute. These methods define the indexes to be used when constructing a bonsai store over the data type. For instance the `DateIx` method signals that items should be partitioned into groups where each items in a group are at most 100 days apart considering their `Date` property. The `Level(0)` flag means that this condition will constitute the top level in a hierarchical set of partitions. The second level will split on price intervals of 300.
 
+#### Constructing BonsaiStores
+
 Given a list of *sales items*, a *Bonsai Store* can be constructed:
 
 ```fsharp
@@ -73,6 +75,8 @@ let store = SB.buildDefaultStore items
 ```
 The `SB.buildDefaultStore` examines the index structure and builds a hierarchal tree where each level corresponds to an index (and the order defined by the level attribute if given). 
 
+
+#### Basic reporting
 Reports may be defined in a *map-reduce* fashion. Here's a very simple example counting the total number of elements given an arbitrary filter:
 
 ```fsharp
@@ -84,7 +88,6 @@ Here's the type of the `report` function:
 ```fsharp
 val report<'T,'R>  (store: IStore<'T>) 
                    (filter: Expr<'T -> bool>) 
-                   (empty: 'R) 
                    (map: 'T -> 'R) 
                    (reduce: 'R [] -> 'R) 
                    : 'R =
@@ -94,17 +97,44 @@ The first argument is a store object (any type implementing the `IStore` interfa
 
 The second argument is a filter condition in the form of an `Expr<'T -> bool>`.The reason for using an expression rather rather than a plain function is that expressions can be dissected and mapped to existing indexes. From a users perspective it's sufficient to think of it as a simple predicate. 
 
-The next argument is the identity element of a report. Strictly speaking, any report defined using the `report` function must form a *commutative monoid*; That is an algebraic structure consisting of a binary operation which is commutative (i.e. changing the order of the arguments does not change the results), along with an identity element. Luckily this includes a large set of useful reports (numbers, tables, unordered lists etc).
-
 The third argument is a `map` function constructing a report from a single item. 
 
 The last parameter is the a *reduce* function folding an array of reports into a single report.
 
+In order for the semantics of report generation to consistent, the type of a report (`'R` in the signature above) needs to form a *commutative monoid*; That is an algebraic structure consisting of a binary operation which is commutative and associative, along with an identity element. 
 
+Given a report type `R`, with identity `id` and operator `*`, the following conditions must hold:
 
-Here's an example of simply counting the elements, given an arbitrary filter:
+```fsharp
+a * id = a , for every a in 'R (identity)
+a * b = b * a , for every a,b in 'R (commutativity)
+a * (b * c) = (a * b) * c, for every a,b,c in 'R (associativity)
+```
 
+The reduce function encodes the identity element as well as the binary operator:
 
+```fsharp
+id = reduce [||]
+reduce = Array.fold (*) id
+```
+The signature of reduce also enables a more efficient implementation of folding a sequence of elements.
+
+Considering the example above: `R.report store filter 0 (fun _ -> 1) Array.sum`
+
+The reduce function is `Array.sum` which can be rewritten into a fold:
+
+```fsharp
+Array.sum xs = Array.fold (+) 0
+```
+unveiling the corresponding `id` and (*) operator. We also need to verify  that the conditions for commutativity, associativity and identity are valid:
+
+```fsharp
+a + 0 = a
+a + b = b + a
+a + (b + c) = (a + b) + c
+```
+
+There are many other useful report types that meet the above criteria. A few includes, numbers, tables and unordered lists.
 
 
 `totalNumSalesItems` can now be used to count the elements using any filter condition. Here is an example of counting the number of items with price greater than 100 during the year 2010:
@@ -113,7 +143,7 @@ Here's an example of simply counting the elements, given an arbitrary filter:
 let res =
     totalNumSalesItems <@ fun item ->  item.Price > 100. && item.Date.Year = 2010 @>
 ```
-Note that the filter expression is giveen as an F# quotation (code snipptes surrounded by <@ and @>). The reason why a quotation is required is that it can be deconstructed and transformed into a more efficient instruction for how to select elements from the store.
+Note that the filter expression is given as an F# quotation (code snipptes surrounded by <@ and @>). The reason why a quotation is required is that it can be deconstructed and transformed into a more efficient instruction for how to select elements from the store.
 
 Here is another example of a slightly more interesting table based report template:
 
@@ -139,4 +169,4 @@ let topTeamsRes =
 The foundation of *Bonsai Store* is a prefix-tree data structure, where each level of the tree splits the items based on a particular property (index.) In the example above the hierarchies include *product*, *years* and *months*. When querying the underlying *tree* with a filter looking at for example a particular *product* in a given *year*, only a subset of the children are considered at each level. This allows a large set of items to be discarded at once (improving on linear complexity). Each node of the tree also allow efficient filtering based on ranges, for instance filtering out items with prices below a certain threshold).
 
 ## Next steps
-The current interface support the construction of immutable data-stores. A service interfaces for propagating changes between multiple clients will be added. The map-reduce interface will be re-evaluated. Quotation translation will be improved.
+The current interface support the construction of immutable data-stores. A service interfaces for propagating changes between multiple clients will be introduced.

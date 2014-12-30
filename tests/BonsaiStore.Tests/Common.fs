@@ -8,17 +8,18 @@ module Common =
     /// Simple date type
     type Date = int * int * int
 
+    let treeConf = T.defaultBuildTreeConfiguration
+    
+    let levels  =
+        [
+            0, fun (y,_,_) -> y
+            1, fun (_,m,_) -> m
+            2, fun (_,_,d) -> d
+        ]
 
     /// Build a tranche tree.
     let buildDateTree xs =
-        let levels  =
-            [
-                0, fun (y,_,_) -> y
-                1, fun (_,m,_) -> m
-                2, fun (_,_,d) -> d
-            ]
-        let conf = T.defaultBuildTreeConfiguration
-        T.buildTree conf levels xs
+        T.buildTree treeConf levels xs
 
     /// Tree of dates
     let dateTree =

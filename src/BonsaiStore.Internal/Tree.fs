@@ -1,13 +1,17 @@
 ﻿namespace FSharp.BonsaiStore.Internal
 
 module Tree =
-    
+
     open FSharp.Collections.RangeMap
     module P = Utils.Printer
-    let private (!<) = P.(!<)
 
+    /// Level of the tree.
     type Level = int
+
+    /// Key
     type Key = int
+
+    let private (!<) = P.(!<)
 
     /// A node has a level attribute and a map to child nodes.
     type Node<'T> =
@@ -26,6 +30,13 @@ module Tree =
     and Tree<'T> =
         | Node of Node<'T>
         | Leaf of 'T []
+
+    /// Empty tree
+    let empty<'T> : Tree<'T> = Leaf [||]
+
+    let isEmptyLeaf = function
+        | Leaf [||] -> true
+        | _         -> false
 
     /// Functor instance for tree.
     let rec map f = function
@@ -66,7 +77,9 @@ module Tree =
                 RangeMap.fromSeq xs }
 
     /// Builds a tree from a list of levels and elements.
-    let buildTree (conf: IBuildTreeConfiguration) levels elements  =
+    let buildTree (conf: IBuildTreeConfiguration) 
+                  (levels: list<Level * ('T -> Key)>) 
+                  (elements : seq<'T>)  =
         let rec go (items: 'T []) filterTypes =
             match filterTypes with
             | []                        ->
@@ -89,9 +102,9 @@ module Tree =
     /// Extract all elements from a tree.
     let elements (tree: Tree<'T>) : 'T [] =
         match tree with
-        | Leaf (xs: 'T []) -> 
+        | Leaf xs   ->
             xs
-        | Node n ->
+        | Node n    ->
             // Check if elements are accumulated.
             match n.AllElements with
             | Some xs   ->
@@ -104,5 +117,92 @@ module Tree =
                     | Tree.Node n   -> 
                         Array.collect (snd >> go) <| n.Children.Elements()
                 go tree
+
+    /// Height of tree.
+    let rec height = function
+        | Leaf _ -> 
+            1
+        | Node n ->
+            1 + Array.max (Array.map (snd >> height) <| n.Children.Elements())
+
+    /// Number of nodes.
+    let rec numNodes = function
+        | Leaf _ -> 
+            1
+        | Node n ->
+            let sub =
+                n.Children.Elements()
+                |> Array.map (snd >> numNodes)
+                |> Array.sum
+            1 + sub
+
+    /// Builds a tree from a list of levels and elements.
+    let insert  (conf: IBuildTreeConfiguration)
+                (levels: list<Level * ('T -> Key)>) 
+                (tree: Tree<'T>) 
+                (items : seq<'T>) 
+                : Tree<'T> =
+        let rec go items tree = function
+            | []                        ->
+                match tree with
+                | Leaf xs   -> 
+                    Leaf <| Array.append items xs
+                | Node n    ->
+                    failwith "Levels not matching."
+            | (level,toKey) :: nextLevels as levels ->
+                match tree with
+                | Node n  when n.Level = level  ->
+                    // Generate all modified child trees.
+                    let modChs =
+                        items
+                        |> Seq.groupBy toKey
+                        |> Seq.map (fun (key, items) ->
+                            let items = Array.ofSeq items
+                            let tree =
+                                match n.Children.Lookup key with
+                                | Some tree    ->
+                                    (go items tree nextLevels)
+                                | None      ->
+                                    buildTree conf nextLevels items
+                            key, tree
+                        )
+                    // Replaces new old children.
+                    let chs =
+                        (n.Children, modChs) 
+                        ||> Seq.fold (fun map (k,v) -> map.Insert k v)
+                    // Appends to cached collection if exists.
+                    let items = Option.map (Array.append items) n.AllElements
+                    Node  {n with  AllElements = items;  Children = chs }
+                | Leaf oldItems                 ->
+                    buildTree conf levels (Array.append items oldItems)
+                | _                             ->
+                    failwith "Levels not matching."
+        go (Array.ofSeq items) tree levels
+
+    /// Builds a tree from a list of levels and elements.
+    let filter  (pred: 'T -> bool)
+                (tree: Tree<'T>)
+                : Tree<'T> =
+        let rec go = function
+            | Leaf xs   -> 
+                Leaf <| Array.filter pred xs
+            | Node n    ->
+                let chs =
+                    // Filter all children
+                    let chs = n.Children.Map go
+                    // Collect keys of empty children.
+                    let ks =
+                        [ for (k,tree) in chs.Elements() do
+                            if isEmptyLeaf tree then yield k else () ]
+                    // Prune the tree by removing all empty children.
+                    Seq.fold (fun (t: IRangeMap<Key,_>) k ->  t.Remove k) chs ks
+                if chs.Elements().Length = 0 then
+                    Leaf [||]
+                else
+                    Node
+                        { n with 
+                            Children = chs
+                            AllElements = Option.map (Array.filter pred) n.AllElements }
+        go tree
 
 
