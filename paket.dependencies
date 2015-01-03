@@ -12,6 +12,7 @@ nuget FsCheck
 nuget FsCheck.XUnit
 nuget xunit.runners
 nuget FSharp.Charting 
+nuget Hopac
 github fsharp/FAKE modules/Octokit/Octokit.fsx
 
 

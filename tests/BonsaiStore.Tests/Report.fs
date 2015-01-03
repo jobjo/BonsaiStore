@@ -1,6 +1,6 @@
 ﻿namespace FSharp.BonsaiStore.Tests
 
-module MapReduce =
+module Report =
     open FsCheck.Xunit
     open Common
 

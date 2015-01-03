@@ -59,7 +59,8 @@
     <Compile Include="Tree.fs" />
     <Compile Include="Path.fs" />
     <Compile Include="Filter.fs" />
-    <Compile Include="MapReduce.fs" />
+    <Compile Include="Report.fs" />
+    <Compile Include="Service.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FsCheck">

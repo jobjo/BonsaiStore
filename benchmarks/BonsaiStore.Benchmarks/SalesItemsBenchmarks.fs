@@ -1,5 +1,5 @@
 ﻿namespace FSharp.BonsaiStore.Benchmarks
-module SalesItemsReports =
+module SalesItemsBenchmarks =
     open System
     open FSharp.BonsaiStore
     open Microsoft.FSharp.Quotations
@@ -11,12 +11,11 @@ module SalesItemsReports =
     module T = Table
 
     /// Count using map reduce
-    let totSalesStoreMapReduce(store: IStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
+    let totalSales(store: IStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
         R.report store filter (fun si -> si.Price) Array.sum<float>
 
     /// Count using map reduce
-    let salesPerEmployeeStoreMapReduce (store: IStore<SalesItem>) 
-                                       (filter: Expr<SalesItem-> bool>) =
+    let salesPerEmployee (store: IStore<SalesItem>) (filter: Expr<SalesItem-> bool>) =
         R.report
             store
             filter
@@ -24,8 +23,8 @@ module SalesItemsReports =
             (T.mergeWith (+))
 
     /// Count items
-    let totalSalesBenchMark () =
-        let numItems = int 1e6
+    let benchmark () =
+        let numItems = int 1e4
 
         printfn "Generate %A sales items" numItems
         let items, m = U.memory <| fun () ->
@@ -69,29 +68,18 @@ module SalesItemsReports =
             <@ fun (si: SalesItem) ->  true @>
 
         
-//        let r1 = salesPerEmployeeStoreMapReduce storeA oneDayFilter
-//        let r2 = salesPerEmployeeStoreMapReduce store oneDayFilter
-//        let r3 = salesPerEmployeeStoreMapReduce storeC oneDayFilter
-//
-//        printfn "========================="
-//        T.showTable r1
-//        printfn "========================="
-//        T.showTable r2
-//        printfn "========================="
-//        T.showTable r3
-        
         let totalSales filter =
             [
-                "Store", Utils.testCase <| fun _    -> totSalesStoreMapReduce store filter
-                "Cached", Utils.testCase <| fun _   -> totSalesStoreMapReduce storeC filter
-                "Array", Utils.testCase <| fun _    -> totSalesStoreMapReduce storeA filter
+                "Store", Utils.testCase <| fun _    -> totalSales store filter
+                "Cached", Utils.testCase <| fun _   -> totalSales storeC filter
+                "Array", Utils.testCase <| fun _    -> totalSales storeA filter
             ]
 
         let salesPerEmployee filter =
             [
-                "Store", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce store filter
-                "Cached", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce storeC filter
-                "Array", Utils.testCase <| fun _ -> salesPerEmployeeStoreMapReduce storeA filter
+                "Store", Utils.testCase <| fun _ -> salesPerEmployee store filter
+                "Cached", Utils.testCase <| fun _ -> salesPerEmployee storeC filter
+                "Array", Utils.testCase <| fun _ -> salesPerEmployee storeA filter
             ]
         [
             "Total Sales One Day", totalSales oneDayFilter

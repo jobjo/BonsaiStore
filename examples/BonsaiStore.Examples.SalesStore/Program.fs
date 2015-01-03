@@ -2,33 +2,38 @@
 
 module Program =
 
-    open SalesItem
-    module SB = FSharp.BonsaiStore.StoreBuilder
-    module R = FSharp.BonsaiStore.Reporting
-    module T = Table
+    open SalesItems
     open FSharp.BonsaiStore
+    module SB = FSharp.BonsaiStore.StoreBuilder
+    module S = FSharp.BonsaiStore.Service.Store
+
+    module T = Table
+
 
     /// Builds a sales item store with random items.
     let buildSalesItemStore () =
+        let numItems = int 1e5
         printfn "Generating items"
-        let salesItems = SalesItemGenerator.randomSalesItems (int 1e3)
+        let salesItems = generateSalesItems numItems
         printfn "Building the store"
-        let store = SB.buildDefaultStore<SalesItem> salesItems
+        let service = 
+            SB.buildDefaultStore<SalesItem> salesItems
+            |> S.buildService
         printfn "Done building the item store"
-        store
+        service
 
     /// Top team report.
-    let topTeams (salesStore: IStore<SalesItem>) filter =
-        R.report
-            salesStore
+    let topTeams service filter =
+        S.report
+            service
             filter
-            (fun item -> T.fromSeq [item.Person.Team, float item.Quantity * item.Price]) 
+            (fun item -> T.fromSeq [item.Employee.Team, float item.Quantity * item.Price])
             T.merge
-    
+
     /// Count elements
-    let totalNumSales (salesStore: IStore<SalesItem>) filter =
-        R.report
-            salesStore
+    let totalNumSales service filter =
+        S.report
+            service
             filter
             (fun _ -> 1)
             Array.sum
@@ -41,13 +46,19 @@ module Program =
 
         // Total number of sales of items with price over 100 in 2010.
         let totalNumSalesRes =
-            totalNumSales salesStore <@ fun item ->  item.Price > 100. && item.Date.Year = 2010 @>
+            totalNumSales salesStore 
+                <@ fun item ->  
+                    item.Price > 100. && item.Date.Year = 2010 
+                @>
         printfn "Number of sales with price over 100 2010: %A\n" totalNumSalesRes
 
         // Top teams July 2011
         let topTeamsRes =
-            topTeams salesStore <@ fun item ->  
-                item.Date.Year = 2011  && item.Date.Month = 7 @>
+            topTeams salesStore 
+                <@ fun item ->
+                    item.Date.Year = 2011  && item.Date.Month = 7 
+                @>
+
         printfn "Top teams July 2011:"
         printfn "--------------------"
         Table.showTable topTeamsRes

@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchmarks", "benchmarks", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BonsaiStore.Benchmarks", "benchmarks\BonsaiStore.Benchmarks\BonsaiStore.Benchmarks.fsproj", "{B40D7A8D-3C54-42F6-85BD-73D7908722FE}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "BonsaiStore.Service", "src\BonsaiStore.Service\BonsaiStore.Service.fsproj", "{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,12 @@ Global
 		{B40D7A8D-3C54-42F6-85BD-73D7908722FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B40D7A8D-3C54-42F6-85BD-73D7908722FE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B40D7A8D-3C54-42F6-85BD-73D7908722FE}.Release|x64.ActiveCfg = Release|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDCA0B18-6EF2-4E25-BACE-6BE1B82E4B0F}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

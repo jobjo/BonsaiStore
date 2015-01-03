@@ -1,12 +1,12 @@
 ﻿namespace FSharp.BonsaiStore.Benchmarks
 module Main =
-    module R = FSharp.BonsaiStore.Benchmarks.DateReports
-    open System
+    module R = FSharp.BonsaiStore.Benchmarks.DateBenchmarks
     open FSharp.Charting
-    open System.Drawing 
     open System.Windows.Forms 
-
     open Utils
+
+    module SR = SalesItemsBenchmarks
+    module SB = FSharp.BonsaiStore.StoreBuilder
 
     let chartBenchmark (groups: list<GroupResult>) =
         [
@@ -19,15 +19,12 @@ module Main =
                     |> Chart.Column
                     |> Chart.WithTitle group.Name
         ]
-    
-    module SR = SalesItemsReports
-    module SB = FSharp.BonsaiStore.StoreBuilder
-    open SalesItems
 
     [<EntryPoint>]
-    [<STAThread>]
     let main argv =
-        let results = SalesItemsReports.totalSalesBenchMark ()
+
+
+        let results = DateBenchmarks.countItemsBenchMark () // SalesItemsReports.benchmark ()
 
         Utils.showBenchmark results
         

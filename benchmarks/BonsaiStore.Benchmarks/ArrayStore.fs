@@ -1,7 +1,8 @@
 ﻿namespace FSharp.BonsaiStore.Benchmarks
 module ArrayStore =
     open FSharp.BonsaiStore
-    let buildStore items =
+
+    let rec buildStore items =
         let report filter map reduce =
             let pred = Quatations.compileQuatationFilter filter
             items
@@ -14,6 +15,9 @@ module ArrayStore =
             |> reduce
         { new IStore<'T> with
             member this.Report filter map reduce = report filter map reduce 
-            member this.Filter f = failwith ""
-            member this.Insert xs = failwith ""
+            member this.Filter f = Array.filter f items |> buildStore
+            member this.Insert xs = Array.append items (Array.ofSeq xs) |> buildStore
+            member this.Map f = Array.map f items |> buildStore
         }
+
+

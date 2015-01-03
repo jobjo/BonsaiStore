@@ -23,5 +23,5 @@ module Interfaces =
         /// Filters the elements of the store.
         abstract Filter : ('T -> bool) -> IStore<'T>
 
-        
-        
+        /// Maps over all elements.
+        abstract Map : ('T -> 'T) -> IStore<'T>

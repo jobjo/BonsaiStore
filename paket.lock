@@ -1,30 +1,31 @@
 NUGET
   remote: https://nuget.org/api/v2
   specs:
-    FAKE (3.11.4)
+    FAKE (3.12.2)
     FsCheck (1.0.3)
     FsCheck.Xunit (1.0.3)
       FsCheck (>= 1.0.3)
       xunit (>= 1.9.2)
     FSharp.Charting (0.90.8)
     FSharp.Compiler.Service (0.0.67)
-    FSharp.Formatting (2.4.36)
+    FSharp.Formatting (2.4.37)
       FSharp.Compiler.Service (0.0.67)
-      Microsoft.AspNet.Razor (2.0.30506.0)
+      Microsoft.AspNet.Razor (2.0.30506)
       RazorEngine (3.3.0)
     FsLinqFixed (2.1.1)
     FSPowerPack.Community (3.0.0)
-      FSPowerPack.Linq.Community (>= 0)
-      FSPowerPack.Metadata.Community (>= 0)
-      FSPowerPack.Parallel.Seq.Community (>= 0)
+      FSPowerPack.Linq.Community 
+      FSPowerPack.Metadata.Community 
+      FSPowerPack.Parallel.Seq.Community 
     FSPowerPack.Core.Community (3.0.0)
     FSPowerPack.Linq.Community (3.0.0)
-      FSPowerPack.Core.Community (>= 0)
+      FSPowerPack.Core.Community 
     FSPowerPack.Metadata.Community (3.0.0)
-      FSPowerPack.Core.Community (>= 0)
+      FSPowerPack.Core.Community 
     FSPowerPack.Parallel.Seq.Community (3.0.0)
-      FSPowerPack.Core.Community (>= 0)
-    Microsoft.AspNet.Razor (2.0.30506.0)
+      FSPowerPack.Core.Community 
+    Hopac (0.0.0.33)
+    Microsoft.AspNet.Razor (2.0.30506)
     Microsoft.Bcl (1.1.9)
       Microsoft.Bcl.Build (>= 1.0.14)
     Microsoft.Bcl.Build (1.0.21)
@@ -32,10 +33,10 @@ NUGET
       Microsoft.Bcl (>= 1.1.9)
       Microsoft.Bcl.Build (>= 1.0.14)
     NuGet.CommandLine (2.8.3)
-    NUnit (2.6.3)
-    NUnit.Runners (2.6.3)
-    Octokit (0.6.0)
-      Microsoft.Net.Http (>= 0)
+    NUnit (2.6.4)
+    NUnit.Runners (2.6.4)
+    Octokit (0.6.1)
+      Microsoft.Net.Http 
     RazorEngine (3.3.0)
       Microsoft.AspNet.Razor (>= 2.0.30506.0)
     SourceLink.Fake (0.4.2)
@@ -44,5 +45,5 @@ NUGET
 GITHUB
   remote: fsharp/FAKE
   specs:
-    modules/Octokit/Octokit.fsx (6e8b0162eb63e1a0a925a7b833ff0777057f6b2a)
-      Octokit (>= 0)
+    modules/Octokit/Octokit.fsx (875c384b04eb7cdee601b8c99852bba2d5e2142b)
+      Octokit

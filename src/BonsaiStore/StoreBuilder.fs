@@ -64,13 +64,18 @@ module StoreBuilder =
             // Filters the tree.
             let filter pred = build <| T.filter pred tree 
 
+            // Map over elements.
+            let map f = build <| T.map f tree
+
             { new IStore<'T> with
                 member this.Report filter map reduce = report filter map reduce 
                 member this.Insert items = insert items
                 member this.Filter pred = filter pred
+                member this.Map f = map f
             }
         // Build the store
-        build <| T.buildTree treeConf levels items
+        let foo = T.buildTree treeConf levels items
+        build <| foo
 
     /// Builds a store
     let buildDefaultStore<'T> (items: seq<'T>) : IStore<'T> =
