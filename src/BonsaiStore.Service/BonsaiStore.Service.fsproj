@@ -79,7 +79,7 @@
   <ItemGroup>
     <Compile Include="Interfaces.fs" />
     <Compile Include="ServiceBuilder.fs" />
-    <Compile Include="BonsaiServiceStoreService.fs" />
+    <Compile Include="Store.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Charting">
