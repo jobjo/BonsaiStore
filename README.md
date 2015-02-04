@@ -151,14 +151,14 @@ a + (b + c) = (a + b) + c
 ```
 There are many other useful report types that meet the required criteria. A few includes, numbers, tables and unordered lists.
 
-Let's consider another example defining a report that lists the total value of sold items per team. In this case we're not aggregating values into a single number but a list of records. The `ReportTypes.Table` module contains a handy data structure for this purpose.
+Let's consider another example defining a report that lists the total value of sold items per team. In this case we're not aggregating values into a single number but a list of records. Here a module `ReportTypes.Table` is assumed.
 
 ```fsharp
 module T = ReportTypes.Table
 
 let topTeams filter  =
     let t = R.report store filter (fun item -> T.fromSeq [item. item]) T.merge
-    T.sortBy (fun item -> ...)
+    T.sortBy (fun item -> ...) t
 ```
 As in the previous example, the function is parametrized by an arbitrary filter expression. The *map* function constructs a table from a single elements and reduce merges a sequence of tables using `merge` from `ReportTypes.Table`.
 
