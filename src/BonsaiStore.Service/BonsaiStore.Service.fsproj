@@ -30,11 +30,11 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\Benchmarks.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\BonsaiStore.Service.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -82,9 +82,6 @@
     <Compile Include="Store.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Charting">
-      <HintPath>..\..\packages\FSharp.Charting\lib\net40\FSharp.Charting.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.PowerPack.Linq.Fixed">
       <HintPath>..\..\packages\FsLinqFixed\lib\net40\FSharp.PowerPack.Linq.Fixed.dll</HintPath>
     </Reference>
@@ -94,10 +91,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="Uniplate">
       <HintPath>..\..\lib\Uniplate.dll</HintPath>
     </Reference>

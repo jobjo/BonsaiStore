@@ -49,13 +49,18 @@ module Utils =
         }
 
     let benchmark n (groups: list<string * list<string * (unit -> unit)>>) : list<GroupResult> =
-        [
-            for _ in [1 .. n] do
-                for (group,samples) in groups do
-                    for (name, sample) in samples do
-                        let t = snd <| time sample
-                        yield group, name, t
-        ]
+        let sample n =
+            [
+                for _ in [1 .. n] do
+                    for (group,samples) in groups do
+                        for (name, sample) in samples do
+                            let t = snd <| time sample
+                            yield group, name, t
+            ]
+        // Warm-up
+        ignore <| sample (n / 2)
+
+        sample n
         |> Seq.groupBy (fun (gn,_,_) -> gn)
         |> Seq.map (fun (gn, rs) ->
             // Group samples by name

@@ -4,16 +4,14 @@ module DateBenchmarks =
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Linq.QuotationEvaluation
     open Date
-    
-    module SB = FSharp.BonsaiStore.StoreBuilder
-    module R = FSharp.BonsaiStore.Reporting
+
     module U = FSharp.BonsaiStore.Benchmarks.Utils
 
     let toPredicate (exp: Expr<Date -> bool>) = exp.Compile() ()
 
     /// Count using map reduce
     let count (store: IStore<Date>) (filter: Expr<Date -> bool>) =
-        R.report store filter (fun _ -> 1) Array.length
+        report store filter (fun _ -> 1) Array.length
 
     /// Count items
     let countItemsBenchMark () =
@@ -25,7 +23,7 @@ module DateBenchmarks =
         printfn "Memory %A" (Utils.getCurrentMemory())
 
         printfn "Build store"
-        let store : IStore<Date.Date> = SB.buildDefaultStore dates
+        let store : IStore<Date.Date> = buildDefaultStore dates
         let storeA = ArrayStore.buildStore dates
 
         printfn "Memory %A" (Utils.getCurrentMemory())

@@ -1,5 +1,5 @@
 ﻿namespace FSharp.BonsaiStore
-module Quatations =
+module Quotations =
 
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
@@ -17,8 +17,10 @@ module Quatations =
     let private UP = EU.UP
 
     type private E = Microsoft.FSharp.Quotations.Expr
-    type private Index = {Level : int; ToIndex : obj -> int}
-    type private IndexMapper = { MatchExpression : Expr -> Option<Index> }
+    type internal Index = {Level : int; ToIndex : obj -> int; IsRange : bool}
+    type internal IndexMapper = { MatchExpression : Expr -> Option<Index> }
+    type internal IndexInfo<'T> = 
+        {Level : int; Expression : Expr<'T -> int>; IsRange : bool}
 
     /// Empty index mapper
     let private emptyIndexMapper = {MatchExpression = fun _ -> None}
@@ -37,18 +39,9 @@ module Quatations =
     /// Given a lambda expression, rewrites it into a key-mapping function.
     /// Ex: genMapKey <@ fun item -> int (item.Product.Price / 100) @> => fun x -> int (x / 100)
     /// Ex: genMapKey <@ fun item -> item.Product.Name.GetHashCode() @> => fun x -> x.GetHashCode()
-    let private generateIndexMapper level exp =
-
-
-        // printfn "======================="
-        // printfn "Exp:"
-        // printfn "%A" exp
+    let private generateIndexMapper level exp isRange =
 
         let exp = EU.normalize exp
-
-        // printfn "======================="
-        // printfn "Normalized Exp:"
-        // printfn "%A" exp
 
         // Extracts the longest GET property sub expression involving the formal
         // parameter.
@@ -96,12 +89,6 @@ module Quatations =
             | _                 -> 
                 failwith "Exp1 is not a lambda"
 
-        // printfn "Property:"
-        // printfn "%A" property
-        // printfn "Index Expression:"
-        // printfn "%A" toIndexExp
-        // printfn "==================="
-
         // Compiled index mapper function.
         let toIndex (x: obj) =
             let tp = x.GetType()
@@ -126,12 +113,8 @@ module Quatations =
         // Map expression to index expression.
         let matchExp exp =
             let nExp = EU.normalize exp
-            // printfn "nExp: [%A]" nExp
-            // printfn "property: [%A]" property
-            // printfn "Equals: %A" (string nExp = string property)
-
             if string nExp = string property then
-                Some {Level = level; ToIndex =  toIndex}
+                Some {Level = level; ToIndex =  toIndex; IsRange = isRange}
             else
                 None
         { MatchExpression = matchExp }
@@ -154,14 +137,13 @@ module Quatations =
                         | BinOp.LET -> BinOp.GET
                     binOp op [e2; e1]
                 | Some index, _                         ->
-                    // printfn "Found matching index"
-                    // printfn "e1: [%A]" e1
-                    // printfn "e2: [%A]" e2
-                    let obj = e2.CompileUntyped()()
-                    // printfn "Object: %A" obj
-                    let ix = index.ToIndex obj
-                    // printfn "Index: [%A]" ix
-                    Some <| Property(index.Level,op,ix)
+                    // Only generate filters for ranges if Range attribute was given.
+                    if op = BinOp.EQ || index.IsRange then
+                        let obj = e2.CompileUntyped()()
+                        let ix = index.ToIndex obj
+                        Some <| Property(index.Level,op,ix)
+                    else
+                        None
 
 
             // Recursively translate expression.
@@ -181,11 +163,11 @@ module Quatations =
                     binOp BinOp.EQ exps
                 | SpecificCall <@ (>) @> (_,ts, exps)   ->
                     binOp BinOp.GET exps
-                | SpecificCall <@ (>=) @> (_,ts, exps)   ->
+                | SpecificCall <@ (>=) @> (_,ts, exps)  ->
                     binOp BinOp.GET exps
                 | SpecificCall <@ (<) @> (_,ts, exps)   ->
                     binOp BinOp.LET exps
-                | SpecificCall <@ (<=) @> (_,ts, exps)   ->
+                | SpecificCall <@ (<=) @> (_,ts, exps)  ->
                     binOp BinOp.LET exps
                 | SpecificCall <@ (<>) @> (_,ts, exps)  ->
                     binOp BinOp.EQ exps |> Option.map Filter.Not
@@ -212,7 +194,7 @@ module Quatations =
             failwith "Not able to translate non-lambda"
 
     /// Get indexes from type
-    let extractIndexes<'T>() = 
+    let internal extractIndexes<'T>() = 
         let tp = typeof<'T>
         let flags = 
             BindingFlags.Public |||
@@ -222,6 +204,10 @@ module Quatations =
             for mi in tp.GetMethods(flags) do
                 match Expr.TryGetReflectedDefinition mi with
                 | Some exp    ->
+                    // Lookup range attribute
+                    let isRange =
+                        mi.CustomAttributes
+                        |> Seq.exists (fun a -> a.AttributeType = typeof<Range>)
                     // Find level attribute.
                     let level =
                         let oLevel =
@@ -243,7 +229,8 @@ module Quatations =
                     | Lambda (this, Lambda(v, body))    ->
                         if v.Type = typeof<unit> then
                             let exp = (Expr.Cast(Expr.Lambda(this,body)) : Expr<'T -> int>)
-                            yield level, exp
+                            yield 
+                                {Level = level; Expression = exp; IsRange = isRange}
                         else
                             failwith "Index method must have unit argument."
                     | _                                 ->
@@ -252,12 +239,12 @@ module Quatations =
         ]
 
     /// Given a list of properties, builds a filter generator.
-    let buildFilterGenerator<'T> (indexes: seq<Expr<'T -> int>>)  =
+    let internal buildFilterGenerator<'T> (indexes: seq<IndexInfo<'T>>)  =
 
         // Create index mapper from the given indexes.
         let indexMapper = 
             indexes
-            |> Seq.mapi (fun ix -> generateIndexMapper ix)
+            |> Seq.mapi (fun ix info -> generateIndexMapper ix info.Expression info.IsRange)
             |> mergeIndexMappers
 
         // Given an expression 
@@ -267,4 +254,4 @@ module Quatations =
             |> F.normalize
 
     /// Compile quotation filter.
-    let compileQuatationFilter<'T> (exp: Expr<'T -> bool>) = exp.Compile() ()
+    let compileQuotationFilter<'T> (exp: Expr<'T -> bool>) = exp.Compile() ()

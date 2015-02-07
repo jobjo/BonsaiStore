@@ -3,7 +3,6 @@
 module SalesItems =
     open FSharp.BonsaiStore
     open System
-    module SB = FSharp.BonsaiStore.StoreBuilder
 
     type Employee = { EmployeeId : int ; Name : string; Team : string }
     type Product = { ProductId : int; Category : string ; Name : string }

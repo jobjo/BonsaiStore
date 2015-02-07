@@ -1,5 +1,5 @@
 ﻿namespace FSharp.BonsaiStore
-module ExpressionUtils =
+module internal ExpressionUtils =
 
     open Microsoft.FSharp.Quotations
     open Microsoft.FSharp.Quotations.Patterns
@@ -30,17 +30,6 @@ module ExpressionUtils =
                 [e1;e2;e3], fun es -> Expr.IfThenElse(es.[0], es.[1], es.[2])
             | e                     ->
                 [], fun _ -> e
-
-//    /// Normalizes an expression by applying some selected rewrite rules.
-//    let simplify<'T> (exp: Expr<'T>)=
-//        let rewrite =
-//            UP.Rewrite <| function
-//                | Let (v,e,body)    -> 
-//                    Some (body.Substitute (fun v' -> if v = v' then Some e else None))
-//                | _                 ->
-//                    None
-//        let exp = rewrite (exp :> Expr)
-//        Expr.Cast<'T>(exp)
 
     /// Normalizes an expression by applying some selected rewrite rules.
     let private simplify =

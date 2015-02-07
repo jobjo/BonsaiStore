@@ -6,7 +6,6 @@ module Main =
     open Utils
 
     module SR = SalesItemsBenchmarks
-    module SB = FSharp.BonsaiStore.StoreBuilder
 
     let chartBenchmark (groups: list<GroupResult>) =
         [
@@ -22,9 +21,7 @@ module Main =
 
     [<EntryPoint>]
     let main argv =
-
-
-        let results = DateBenchmarks.countItemsBenchMark () // SalesItemsReports.benchmark ()
+        let results = SalesItemsBenchmarks.benchmark ()
 
         Utils.showBenchmark results
         

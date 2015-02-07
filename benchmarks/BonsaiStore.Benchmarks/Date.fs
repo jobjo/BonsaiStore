@@ -1,7 +1,6 @@
 ﻿namespace FSharp.BonsaiStore.Benchmarks
 module Date =
     open FSharp.BonsaiStore
-    module SB = FSharp.BonsaiStore.StoreBuilder
 
     type Date =
         {

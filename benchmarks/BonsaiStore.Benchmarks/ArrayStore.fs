@@ -4,7 +4,7 @@ module ArrayStore =
 
     let rec buildStore items =
         let report filter map reduce =
-            let pred = Quatations.compileQuatationFilter filter
+            let pred = Quotations.compileQuotationFilter filter
             items
             |> Array.Parallel.choose (fun x ->
                 if pred x then 

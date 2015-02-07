@@ -2,7 +2,6 @@
 module SalesItems =
     open FSharp.BonsaiStore
     open System
-    module SB = FSharp.BonsaiStore.StoreBuilder
 
     type Employee = { EmployeeId : int ; Name : string; Team : string }
     type Product = { ProductId : int; Category : string ; Name : string }
@@ -14,34 +13,34 @@ module SalesItems =
             Date : System.DateTime
             Employee : Employee 
         }
-        [<Index; Level(0)>]
+        [<Index; Level(1); Range>]
         member private this.DateIx() = 
             let span = this.Date - DateTime(1900,1,1)
             span.Days / 100
 
-        [<Index; Level(1)>]
+        [<Index; Level(2); Range>]
         member private this.PriceIx() = 
             int (this.Price / 300.)
 
-        [<Index; Level(2)>]
+        [<Index; Level(3)>]
         member private this.PersonNameIx() = 
             this.Employee.Name.GetHashCode() % 100
 
-        [<Index; Level(3)>]
+        [<Index; Level(4)>]
         member private this.CategoryIx() = 
             this.Product.Category.ToString().GetHashCode()
 
-//        [<Index>]
-//        member private this.TeamIx() = 
-//            abs (this.Employee.Team.GetHashCode()) % 5
-//
-//        [<Index>]
-//        member private this.QuantityIx() = 
-//            this.Quantity % 10
-//
-//        [<Index>]
-//        member private this.EmployeedIdIx() = 
-//            this.Employee.EmployeeId % 10
+        [<Index; Level(5)>]
+        member private this.TeamIx() = 
+            abs (this.Employee.Team.GetHashCode()) % 5
+
+        [<Index; Level(6); Range>]
+        member private this.QuantityIx() = 
+            this.Quantity % 10
+
+        [<Index; Level(7)>]
+        member private this.EmployeedIdIx() = 
+            this.Employee.EmployeeId % 10
     
     let generateSalesItems n =
         let r = new Random()

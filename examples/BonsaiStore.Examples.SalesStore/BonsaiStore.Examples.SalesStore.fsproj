@@ -51,10 +51,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="SalesItem.fs" />
-    <Compile Include="Table.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\BonsaiStore.Reports\BonsaiStore.Reports.fsproj">
+      <Name>BonsaiStore.Reports</Name>
+      <Project>{90e4452d-b4a1-4db8-af45-164bf0f2b284}</Project>
+      <Private>True</Private>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\BonsaiStore.Service\BonsaiStore.Service.fsproj">
       <Name>BonsaiStore.Service</Name>
       <Project>{cdca0b18-6ef2-4e25-bace-6be1b82e4b0f}</Project>

@@ -1,14 +1,12 @@
 ﻿namespace FSharp.BonsaiStore.Examples
 
 module Program =
-
     open SalesItems
+
     open FSharp.BonsaiStore
-    module SB = FSharp.BonsaiStore.StoreBuilder
-    module S = FSharp.BonsaiStore.Service.Store
-
-    module T = Table
-
+    open FSharp.BonsaiStore.Service
+    module T  = Reports.Table
+    module N  = Reports.Numerical
 
     /// Builds a sales item store with random items.
     let buildSalesItemStore () =
@@ -16,27 +14,21 @@ module Program =
         printfn "Generating items"
         let salesItems = generateSalesItems numItems
         printfn "Building the store"
-        let service = 
-            SB.buildDefaultStore<SalesItem> salesItems
-            |> S.buildService
+        let service = buildDefaultService salesItems
         printfn "Done building the item store"
         service
 
     /// Top team report.
     let topTeams service filter =
-        S.report
+        report
             service
             filter
-            (fun item -> T.fromSeq [item.Employee.Team, float item.Quantity * item.Price])
-            T.merge
+            (fun item -> T.single item.Employee.Team  (float item.Quantity * item.Price))
+            (T.mergeWith (+))
 
     /// Count elements
     let totalNumSales service filter =
-        S.report
-            service
-            filter
-            (fun _ -> 1)
-            Array.sum
+        N.sumBy service filter (fun _ -> 1.)
 
     [<EntryPoint>]
     let main argv = 
@@ -59,7 +51,4 @@ module Program =
                     item.Date.Year = 2011  && item.Date.Month = 7 
                 @>
 
-        printfn "Top teams July 2011:"
-        printfn "--------------------"
-        Table.showTable topTeamsRes
         0

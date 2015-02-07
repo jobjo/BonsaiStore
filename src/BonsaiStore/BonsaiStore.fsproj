@@ -28,10 +28,10 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>false</Optimize>
     <Tailcalls>true</Tailcalls>
-    <OutputPath>bin</OutputPath>
+    <OutputPath>..\..\bin\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\BonsaiStore.xml</DocumentationFile>
+    <DocumentationFile>..\..\bin\BonsaiStore.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
@@ -52,9 +52,9 @@
   <ItemGroup>
     <Compile Include="Interfaces.fs" />
     <Compile Include="ExpressionUtils.fs" />
-    <Compile Include="Quatations.fs" />
+    <Compile Include="Quotations.fs" />
     <Compile Include="StoreBuilder.fs" />
-    <Compile Include="Reporting.fs" />
+    <Compile Include="Prelude.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack.Linq.Fixed">
