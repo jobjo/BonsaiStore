@@ -81,9 +81,6 @@
     <Compile Include="Numerical.fs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="FSharp.Charting">
-      <HintPath>..\..\packages\FSharp.Charting\lib\net40\FSharp.Charting.dll</HintPath>
-    </Reference>
     <Reference Include="FSharp.PowerPack.Linq.Fixed">
       <HintPath>..\..\packages\FsLinqFixed\lib\net40\FSharp.PowerPack.Linq.Fixed.dll</HintPath>
     </Reference>

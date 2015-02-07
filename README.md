@@ -19,7 +19,7 @@ The objective of the project is to provide a simple interface for constructing a
 Instead of using an external query language (such as `SQL`), queries are constructed in `F#` and data is stored in memory.
 
 The following features are emphasized:
-* Simple semantics - A BonsaiStore is conceptually just a set of items.
+* Simple semantics - A *Bonsai Store* is conceptually just a set of items.
 * Reports may be constructed by composing well known operations over sequences such as  `filter`,   `map` and `fold`.
 * Queries are statically type checked.
 * Support for abstractions - Query templates can be extracted and packaged as libraries.
@@ -63,14 +63,15 @@ To give a concrete example of how *Bonsai Store* can be used, consider the follo
 
 The `SalesItem` type contains basic information such as the employee responsible for the sale, the price, quantity and product being sold.
 
-The type is also enhanced with some private methods annotated with an `Index` attribute. These methods define the indexes to be used when constructing a bonsai store over the data type. For instance the `DateIx` method signals that items should be partitioned into groups where items in the same group are at most 100 days apart with respect to their `Date` properties. The `Level(0)` flag means that this condition will constitute the top level in a hierarchical set of partitions. The second level will split on price intervals of 300. The next levels will branch on name of the sales person and product category.
+The type is also enhanced with some private methods annotated with an `Index` attribute. These methods define the indexes to be used when constructing a *Bonsai Store* over the data type. For instance the `DateIx` method signals that items should be partitioned into groups where items in the same group are at most 100 days apart with respect to their `Date` properties. The `Level(0)` flag means that this condition will constitute the top level in a hierarchical set of partitions. The second level will split on price intervals of 300. The next levels will branch on name of the sales person and product category.
 
-#### Constructing BonsaiStores
+#### Constructing Bonsai Stores
 Given a list of *sales items*, a *Bonsai Store* can be constructed:
 
 ```fsharp
-module SB = FSharp.BonsaiStore.StoreBuilder
-let store = SB.buildDefaultStore items
+open FSharp.BonsaiStore
+open FSharp.BonsaiStore.Service
+let store = buildDefaultService items
 ```
 The `SB.buildDefaultStore` examines the index structure and builds a hierarchal tree where each level corresponds to an index.
 
@@ -78,8 +79,7 @@ The `SB.buildDefaultStore` examines the index structure and builds a hierarchal 
 When applicable, reports are preferably defined in a *map-reduce* fashion. Following is an example for counting the total number of elements given an arbitrary filter:
 
 ```fsharp
-module R = FSharp.BonsaiStore.Reporting
-let totalNumSalesItems filter = R.report store filter (fun _ -> 1) Array.sum
+let totalNumSalesItems filter = report store filter (fun _ -> 1) Array.sum
 ```
 
 `totalNumSalesItems` can now be used to count the elements using any filtering condition. Here is an example of counting the number of items with price greater than 100 during the year 2010:
@@ -100,7 +100,7 @@ val report<'T,'R>  (store: IStore<'T>)
 
 The first argument is a store object; Any type implementing the `IStore` interface will do but in the following sections I'll assume that we're using *Bonsai Stores*.
 
-The second argument is a filter condition in the form of an `Expr<'T -> bool>`.The reason for requiring an expression rather than a plain function is that expressions can be dissected and mapped to existing indexes. This enables Bonsai Stores to slice the internal tree structure efficiently. From a users perspective it's sufficient to think of it as a simple predicate. Expressions are easy to create in F# using the quotation mechanism (simply embed the code inside a <@ and @>.
+The second argument is a filter condition in the form of an `Expr<'T -> bool>`.The reason for requiring an expression rather than a plain function is that expressions can be dissected and mapped to existing indexes. This enables *Bonsai Stores* to slice the internal tree structure efficiently. From a users perspective it's sufficient to think of it as a simple predicate. Expressions are easy to create in F# using the quotation mechanism (simply embed the code inside a <@ and @>.
 
 The third argument is a `map` function for constructing a report from a single item. In the example above the function maps every element to the value 1. 
 
@@ -111,7 +111,7 @@ An `IStore` object is isomorphic to an unordered sequence and the semantics of `
 ```fsharp
 let report store filter map reduce = 
     let pred = compile filter
-    R.find store <@ fun _ -> true @>
+    find store <@ fun _ -> true @>
     |> Array.filter pred
     |> Array.map map 
     |> reduce
@@ -151,16 +151,19 @@ a + (b + c) = (a + b) + c
 ```
 There are many other useful report types that meet the required criteria. A few includes, numbers, tables and unordered lists.
 
-Let's consider another example defining a report that lists the total value of sold items per team. In this case we're not aggregating values into a single number but a list of records. Here a module `ReportTypes.Table` is assumed.
+Let's consider another example defining a report that lists the total value of sold items per team. In this case we're not aggregating values into a single number but a list of records.
 
 ```fsharp
-module T = ReportTypes.Table
+module T  = Reports.Table
 
-let topTeams filter  =
-    let t = R.report store filter (fun item -> T.fromSeq [item. item]) T.merge
-    T.sortBy (fun item -> ...) t
+let topTeams store filter =
+    report
+        store
+        filter
+        (fun item -> T.single item.Employee.Team  (float item.Quantity * item.Price))
+        (T.mergeWith (+))
 ```
-As in the previous example, the function is parametrized by an arbitrary filter expression. The *map* function constructs a table from a single elements and reduce merges a sequence of tables using `merge` from `ReportTypes.Table`.
+As in the previous example, the function is parametrized by an arbitrary filter expression. The *map* function constructs a table from a single elements and reduce merges a sequence of tables.
 
 Here's and example instantiating `topTeams` with a filter:
 
@@ -168,6 +171,3 @@ Here's and example instantiating `topTeams` with a filter:
 let topTeamsRes =
     topTeams salesStore <@ fun item ->  item.Date > DateTime(2010,7,1) && item.Price > 200 && item.Price < 500 @>
 ```
-
-## Next steps
-The current interface support the construction of immutable data-stores. A service interfaces for propagating changes between multiple clients will be introduced.
